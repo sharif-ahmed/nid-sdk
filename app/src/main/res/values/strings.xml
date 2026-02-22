@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">CITL_NID_SDK</string>
+    <string name="nid_capture_instruction">Align the front side of the NID card within the frame.</string>
+    <string name="nid_capture_btn">Capture NID</string>
+    <string name="nid_selfie_instruction">Place your face inside the oval</string>
+    <string name="nid_selfie_capture">Capture Selfie</string>
+    <string name="nid_selfie_liveness_not_ready">Complete liveness steps before capturing.</string>
+    <string name="nid_selfie_liveness_passed">Liveness verified! Tap to capture selfie.</string>
+    <string name="nid_liveness_action_blink">Please blink your eyes</string>
+    <string name="nid_liveness_action_smile">Now, give us a big smile</string>
+    <string name="nid_liveness_action_turn_left">Slowly turn your head to the left</string>
+    <string name="nid_liveness_action_turn_right">Slowly turn your head to the right</string>
+    <string name="nid_liveness_completed">All actions completed!</string>
+    <string name="nid_liveness_blink_label">Blink</string>
+    <string name="nid_liveness_smile_label">Smile</string>
+    <string name="nid_liveness_turn_label">Head Turn</string>
+    <string name="nid_processing_ocr">Extracting NID information…</string>
+    <string name="nid_processing_face_match">Matching face…</string>
+    <string name="nid_processing_network">Verifying with server…</string>
+    <string name="nid_result_title">Verification Result</string>
+    <string name="nid_result_match">Match</string>
+    <string name="nid_result_not_match">Not Match</string>
+    <string name="nid_result_details">NID: %1$s\nName: %2$s\nDOB: %3$s\nScore: %4$s</string>
+    <string name="nid_done">Done</string>
+</resources>

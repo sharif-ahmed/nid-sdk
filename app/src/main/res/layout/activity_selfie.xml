@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/nid_background">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.commlink.citl_nid_sdk.OverlayView
+        android:id="@+id/overlayView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Top Instruction -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="8dp"
+        android:layout_gravity="top"
+        android:background="#80000000">
+
+        <TextView
+            android:id="@+id/instructionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nid_selfie_instruction"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="8dp" />
+    </LinearLayout>
+
+    <!-- Bottom Progress Panel -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:layout_gravity="bottom"
+        android:background="#E0000000"
+        android:elevation="8dp">
+
+        <!-- Blink Progress -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/nid_liveness_blink_label"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
+            <ProgressBar
+                android:id="@+id/pbBlink"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="@color/nid_primary" />
+
+            <ImageView
+                android:id="@+id/imgBlinkCheck"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/checkbox_on_background"
+                android:visibility="invisible"
+                app:tint="@color/nid_primary" />
+        </LinearLayout>
+
+        <!-- Smile Progress -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/nid_liveness_smile_label"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
+            <ProgressBar
+                android:id="@+id/pbSmile"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="@color/nid_primary" />
+
+            <ImageView
+                android:id="@+id/imgSmileCheck"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/checkbox_on_background"
+                app:tint="@color/nid_primary"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <!-- Head Turn Progress -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/nid_liveness_turn_label"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
+            <ProgressBar
+                android:id="@+id/pbTurn"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="@color/nid_primary" />
+
+            <ImageView
+                android:id="@+id/imgTurnCheck"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/checkbox_on_background"
+                app:tint="@color/nid_primary"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <!-- Capture Button -->
+        <ImageButton
+            android:id="@+id/captureButton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/nid_capture_button_bg"
+            android:contentDescription="@string/nid_selfie_capture"
+            android:enabled="false" />
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
