@@ -9,4 +9,26 @@
     <color name="white">#FFFFFFFF</color>
     <color name="nid_background">#121212</color>
     <color name="nid_primary">#00B894</color>
+
+    <!-- KYC Verification Colors -->
+    <color name="kyc_primary">#1565C0</color>
+    <color name="kyc_primary_dark">#0D47A1</color>
+    <color name="kyc_primary_light">#1E88E5</color>
+    <color name="kyc_accent">#00BFA5</color>
+    <color name="kyc_accent_dark">#00897B</color>
+    <color name="kyc_background">#F5F7FA</color>
+    <color name="kyc_surface">#FFFFFF</color>
+    <color name="kyc_card_bg">#FFFFFF</color>
+    <color name="kyc_text_primary">#1A1A2E</color>
+    <color name="kyc_text_secondary">#5C6BC0</color>
+    <color name="kyc_text_hint">#9E9E9E</color>
+    <color name="kyc_divider">#E0E0E0</color>
+    <color name="kyc_error">#E53935</color>
+    <color name="kyc_success">#43A047</color>
+    <color name="kyc_gradient_start">#0D47A1</color>
+    <color name="kyc_gradient_end">#1565C0</color>
+    <color name="kyc_image_placeholder">#E8EAF6</color>
+    <color name="kyc_ripple">#201565C0</color>
+    <color name="kyc_capture_btn">#FF6F00</color>
+    <color name="kyc_status_bar">#0A3D91</color>
 </resources>

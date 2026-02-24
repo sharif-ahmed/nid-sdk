@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import citl_nid_sdk.NidDatabase;
 import citl_nid_sdk.R;
 
 public class ResultActivity extends AppCompatActivity {
@@ -35,7 +36,7 @@ public class ResultActivity extends AppCompatActivity {
         setContentView(R.layout.activity_result);
 
         TextView status = findViewById(R.id.statusText);
-        TextView details = findViewById(R.id.detailsText);
+        //TextView details = findViewById(R.id.detailsText);
         Button done = findViewById(R.id.doneButton);
 
         boolean match = getIntent().getBooleanExtra(EXTRA_MATCH, false);
@@ -47,8 +48,8 @@ public class ResultActivity extends AppCompatActivity {
         NIDInfo info = new NIDInfo(nid, name, dob);
 
         status.setText(match ? R.string.nid_result_match : R.string.nid_result_not_match);
-        details.setText(getString(R.string.nid_result_details,
-                nid, name, dob, String.format("%.3f", score)));
+        /*details.setText(getString(R.string.nid_result_details,
+                nid, name, dob, String.format("%.3f", score)));*/
 
         done.setOnClickListener(v -> {
             NIDCallback cb = CallbackHolder.getInstance().getCallback();

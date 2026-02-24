@@ -1,7 +1,9 @@
-package com.commlink.citl_nid_sdk;
+package citl_nid_sdk;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -28,12 +30,12 @@ import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.face.Face;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import citl_nid_sdk.R;
 
 public class SelfieActivity extends AppCompatActivity implements LivenessDetector.ActionProgressCallback {
 
@@ -235,7 +237,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
             livenessPassed = true;
             instruction.setText(R.string.nid_selfie_liveness_passed);
             captureButton.setEnabled(true);
-            captureSelfie();
+            //new Handler().postDelayed(this::captureSelfie,1000);
         });
     }
 
@@ -307,11 +309,13 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                     @Override
                     public void onCaptureSuccess(@NonNull ImageProxy image) {
                         super.onCaptureSuccess(image);
+                        int rotationDegrees = image.getImageInfo().getRotationDegrees();
                         BitmapUtilsExt.processImageProxy(SelfieActivity.this, image,
                                 bitmap -> {
                                     image.close();
-                                    BitmapHolder.setSelfieBitmap(bitmap);
-                                    ProcessingActivity.start(SelfieActivity.this);
+                                    // Fix rotation
+                                    Bitmap rotatedBitmap = rotateBitmap(bitmap, rotationDegrees);
+                                    BitmapHolder.setSelfieBitmap(rotatedBitmap);
                                     finish();
                                 },
                                 e -> {
@@ -353,6 +357,17 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                     "Camera error", e));
         }
         finish();
+    }
+
+    private Bitmap rotateBitmap(Bitmap bitmap, int degrees) {
+        if (degrees == 0 || bitmap == null) return bitmap;
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degrees);
+        Bitmap rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        if (rotated != bitmap) {
+            bitmap.recycle();
+        }
+        return rotated;
     }
 
     @Override

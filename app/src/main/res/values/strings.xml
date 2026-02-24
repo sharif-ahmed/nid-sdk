@@ -6,7 +6,8 @@
     <string name="nid_selfie_capture">Capture Selfie</string>
     <string name="nid_selfie_liveness_not_ready">Complete liveness steps before capturing.</string>
     <string name="nid_selfie_liveness_passed">Liveness verified! Tap to capture selfie.</string>
-    <string name="nid_liveness_action_blink">Please blink your eyes</string>
+    <string name="nid_liveness_passed">Liveness verified!</string>
+    <string name="nid_liveness_action_blink">Please blink eye</string>
     <string name="nid_liveness_action_smile">Now, give us a big smile</string>
     <string name="nid_liveness_action_turn_left">Slowly turn your head to the left</string>
     <string name="nid_liveness_action_turn_right">Slowly turn your head to the right</string>
@@ -22,4 +23,59 @@
     <string name="nid_result_not_match">Not Match</string>
     <string name="nid_result_details">NID: %1$s\nName: %2$s\nDOB: %3$s\nScore: %4$s</string>
     <string name="nid_done">Done</string>
+
+    <!-- KYC Verification Strings -->
+    <string name="kyc_verification_title">Identity Verification</string>
+    <string name="kyc_verification_subtitle">Complete the following steps to verify your identity</string>
+    <string name="kyc_card_nid_title">Submit NID Information</string>
+    <string name="kyc_card_nid_desc">Provide your National ID details</string>
+    <string name="kyc_card_selfie_title">Take Selfie</string>
+    <string name="kyc_card_selfie_desc">Capture your live selfie</string>
+    <string name="kyc_step_1">Step 1</string>
+    <string name="kyc_step_2">Step 2</string>
+    <string name="kyc_step_3">Step 3</string>
+
+    <!-- NID Info Activity -->
+    <string name="kyc_nid_info_title">NID Information</string>
+    <string name="kyc_nid_front_label">NID Front Side</string>
+    <string name="kyc_nid_back_label">NID Back Side</string>
+    <string name="kyc_capture_front">Capture Front Image</string>
+    <string name="kyc_capture_back">Capture Back Image</string>
+    <string name="kyc_nid_number_hint">NID Number</string>
+    <string name="kyc_full_name_hint">Full Name (English)</string>
+    <string name="kyc_dob_hint">Date of Birth</string>
+    <string name="kyc_submit">Submit Information</string>
+    <string name="kyc_tap_to_capture">Tap to capture</string>
+
+    <!-- NID Validation -->
+    <string name="kyc_error_nid_number">Please enter your NID number</string>
+    <string name="kyc_error_full_name">Please enter your full name</string>
+    <string name="kyc_error_dob">Please select your date of birth</string>
+    <string name="kyc_error_front_image">Please capture the NID front image</string>
+    <string name="kyc_error_back_image">Please capture the NID back image</string>
+    <string name="kyc_success_title">Success!</string>
+    <string name="kyc_success_message">Your NID information has been saved successfully.</string>
+
+    <!-- Selfie Capture Activity -->
+    <string name="kyc_selfie_title">Capture Selfie</string>
+    <string name="kyc_selfie_instruction">Position your face in the frame and tap the capture button</string>
+    <string name="kyc_card_verify_title">Verify Identity</string>
+    <string name="kyc_card_verify_desc">Finalize your identity verification</string>
+    <string name="kyc_summary_title">Review Information</string>
+    <string name="kyc_summary_subtitle">Please review your information before final verification</string>
+    <string name="kyc_confirm_verify">Confirm &amp; Verify</string>
+    <string name="kyc_selfie_label">Captured Selfie</string>
+    <string name="kyc_selfie_captured">Selfie captured successfully!</string>
+    <string name="kyc_result_score_label">Match Score</string>
+    <string name="kyc_result_status_label">Verification Status</string>
+    <string name="kyc_result_details_title">Identity Details</string>
+    <string name="kyc_result_match_desc">The captured selfie matches the NID photo.</string>
+    <string name="kyc_result_no_match_desc">The captured selfie does not match the NID photo.</string>
+    <string name="kyc_selfie_retake">Retake</string>
+    <string name="kyc_selfie_save">Save Selfie</string>
+    <string name="kyc_selfie_saved">Selfie saved successfully!</string>
+    <string name="kyc_camera_permission_required">Camera permission is required to capture images</string>
+    <string name="kyc_camera_error">Failed to start camera. Please try again.</string>
+    <string name="nid_capture_front_instruction">Capture NID Front Image</string>
+    <string name="nid_capture_back_instruction">Capture NID Back Image</string>
 </resources>

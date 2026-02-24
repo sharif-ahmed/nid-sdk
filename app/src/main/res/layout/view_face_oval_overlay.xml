@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.commlink.citl_nid_sdk.OverlayView
+<citl_nid_sdk.OverlayView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/faceOvalOverlay"
     android:layout_width="match_parent"
