@@ -108,6 +108,9 @@ public class VerificationActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         executor.shutdown();
+        if (isFinishing()) {
+            CallbackHolder.getInstance().clear();
+        }
         binding = null;
     }
 }

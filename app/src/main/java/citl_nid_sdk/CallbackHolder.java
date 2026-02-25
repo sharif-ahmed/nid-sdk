@@ -1,11 +1,9 @@
 package citl_nid_sdk;
 
-import java.lang.ref.WeakReference;
-
 class CallbackHolder {
 
     private static CallbackHolder instance;
-    private WeakReference<NIDCallback> callbackRef;
+    private NIDCallback callback;
     private String licenseKey;
 
     private CallbackHolder() {}
@@ -18,11 +16,11 @@ class CallbackHolder {
     }
 
     public void setCallback(NIDCallback callback) {
-        this.callbackRef = new WeakReference<>(callback);
+        this.callback = callback;
     }
 
     public NIDCallback getCallback() {
-        return callbackRef != null ? callbackRef.get() : null;
+        return callback;
     }
 
     public void setLicenseKey(String licenseKey) {
@@ -34,10 +32,7 @@ class CallbackHolder {
     }
 
     public void clear() {
-        if (callbackRef != null) {
-            callbackRef.clear();
-        }
-        callbackRef = null;
+        callback = null;
         licenseKey = null;
     }
 }

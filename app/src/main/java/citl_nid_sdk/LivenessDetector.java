@@ -95,6 +95,7 @@ public class LivenessDetector {
         public float blinkProgress = 0f;
         public int blinkCount = 0;
         public float smileProgress = 0f;
+        public long smileStartTime = -1;
         public float headTurnLeftProgress = 0f;
         public float headTurnRightProgress = 0f;
 
@@ -127,7 +128,7 @@ public class LivenessDetector {
     
     // Face guide oval bounds (set by UI)
     private RectF ovalGuideBounds = null;
-    private boolean faceInOval = false;
+    private boolean faceInOval = true; // Default to true so it doesn't block if bounds aren't set
     private float guideProgress = 0f;
     private boolean isLastBlinkStateClosed = false;
 
@@ -136,7 +137,7 @@ public class LivenessDetector {
      */
     public LivenessDetector() {
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
-                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
                 .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
                 .setMinFaceSize(0.15f)
@@ -294,40 +295,34 @@ public class LivenessDetector {
      */
     public void analyzeFrame(@NonNull InputImage image, @NonNull Callback callback) {
         detector.process(image)
-                .addOnSuccessListener(new OnSuccessListener<List<Face>>() {
-                    @Override
-                    public void onSuccess(List<Face> faces) {
-                        LivenessResult result = new LivenessResult();
-                        
-                        if (faces.isEmpty()) {
-                            result.isLive = false;
-                            result.failureReason = "No face detected";
-                            result.faces = faces;
-                            callback.onResult(result);
-                            return;
-                        }
+                .addOnSuccessListener(faces -> {
+                    LivenessResult result = new LivenessResult();
 
-                        // Process face for liveness detection
-                        processFace(faces);
-
-                        // Update result
-                        result.isLive = isLivenessCompleted();
-                        result.faces = faces;
-                        if (!result.isLive) {
-                            result.failureReason = "Liveness verification in progress";
-                        }
-                        
-                        callback.onResult(result);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        LivenessResult result = new LivenessResult();
+                    if (faces.isEmpty()) {
                         result.isLive = false;
-                        result.failureReason = e.getMessage();
+                        result.failureReason = "No face detected";
+                        result.faces = faces;
                         callback.onResult(result);
+                        return;
                     }
+
+                    // Process face for liveness detection
+                    processFace(faces);
+
+                    // Update result
+                    result.isLive = isLivenessCompleted();
+                    result.faces = faces;
+                    if (!result.isLive) {
+                        result.failureReason = "Liveness verification in progress";
+                    }
+
+                    callback.onResult(result);
+                })
+                .addOnFailureListener(e -> {
+                    LivenessResult result = new LivenessResult();
+                    result.isLive = false;
+                    result.failureReason = e.getMessage();
+                    callback.onResult(result);
                 });
     }
 
@@ -344,65 +339,64 @@ public class LivenessDetector {
             return state;
         }
 
+        Face face = faces.get(0);
+        
+        // Detect face position relative to oval guide always if face is detected
+        detectFaceInOval(face);
+
         // Check if all actions completed
         if (currentActionIndex >= actionSequence.size()) {
             return state;
         }
 
-        Face face = faces.get(0);
         ActionType currentAction = getCurrentAction();
 
-        if (currentAction == null) {
-            return state;
-        }
-
-        // Detect face position relative to oval guide
-        detectFaceInOval(face);
-
-        // Process only the current action
+        // Process only the current action if face is in oval
         float targetProgress = 0f;
         boolean actionCompleted = false;
 
-        switch (currentAction) {
-            case BLINK:
-                detectBlink(face);
-                // Progress is based on blink count (0 to 4)
-                state.blinkProgress = interpolateProgress(state.blinkProgress, state.blinkCount / 4.0f);
-                if (state.blinkCount >= 4 && !state.blinkDone) {
-                    state.blinkDone = true;
-                    actionCompleted = true;
-                }
-                break;
+        if (faceInOval) {
+            switch (currentAction) {
+                case BLINK:
+                    detectBlink(face);
+                    // Progress is based on blink count (0 to 4)
+                    state.blinkProgress = interpolateProgress(state.blinkProgress, state.blinkCount / 4.0f);
+                    if (state.blinkCount >= 4 && !state.blinkDone) {
+                        state.blinkDone = true;
+                        actionCompleted = true;
+                    }
+                    break;
 
-            case SMILE:
-                targetProgress = detectSmile(face);
-                // Smooth interpolation - only update current action progress
-                state.smileProgress = interpolateProgress(state.smileProgress, targetProgress);
-                if (state.smileProgress >= 0.9f && !state.smileDone) {
-                    state.smileDone = true;
-                    actionCompleted = true;
-                }
-                break;
+                case SMILE:
+                    targetProgress = detectSmile(face);
+                    // Smooth interpolation - only update current action progress
+                    state.smileProgress = interpolateProgress(state.smileProgress, targetProgress);
+                    if (state.smileProgress >= 0.9f && !state.smileDone) {
+                        state.smileDone = true;
+                        actionCompleted = true;
+                    }
+                    break;
 
-            case TURN_HEAD_LEFT:
-                targetProgress = detectHeadTurnLeft(face);
-                // Smooth interpolation - only update current action progress
-                state.headTurnLeftProgress = interpolateProgress(state.headTurnLeftProgress, targetProgress);
-                if (state.headTurnLeftProgress >= 0.9f && !state.headTurnLeftDone) {
-                    state.headTurnLeftDone = true;
-                    actionCompleted = true;
-                }
-                break;
+                case TURN_HEAD_LEFT:
+                    targetProgress = detectHeadTurnLeft(face);
+                    // Smooth interpolation - only update current action progress
+                    state.headTurnLeftProgress = interpolateProgress(state.headTurnLeftProgress, targetProgress);
+                    if (state.headTurnLeftProgress >= 0.9f && !state.headTurnLeftDone) {
+                        state.headTurnLeftDone = true;
+                        actionCompleted = true;
+                    }
+                    break;
 
-            case TURN_HEAD_RIGHT:
-                targetProgress = detectHeadTurnRight(face);
-                // Smooth interpolation - only update current action progress
-                state.headTurnRightProgress = interpolateProgress(state.headTurnRightProgress, targetProgress);
-                if (state.headTurnRightProgress >= 0.9f && !state.headTurnRightDone) {
-                    state.headTurnRightDone = true;
-                    actionCompleted = true;
-                }
-                break;
+                case TURN_HEAD_RIGHT:
+                    targetProgress = detectHeadTurnRight(face);
+                    // Smooth interpolation - only update current action progress
+                    state.headTurnRightProgress = interpolateProgress(state.headTurnRightProgress, targetProgress);
+                    if (state.headTurnRightProgress >= 0.9f && !state.headTurnRightDone) {
+                        state.headTurnRightDone = true;
+                        actionCompleted = true;
+                    }
+                    break;
+            }
         }
 
         // Notify progress callback
@@ -470,12 +464,19 @@ public class LivenessDetector {
     private float detectSmile(@NonNull Face face) {
         Float smileProb = face.getSmilingProbability();
 
-        if (smileProb == null) {
-            return state.smileProgress; // Keep current progress
+        if (smileProb == null || smileProb < SMILE_THRESHOLD) {
+            state.smileStartTime = -1;
+            return 0f;
         }
 
-        // Progress increases with smile probability
-        float progress = smileProb; // 0..1
+        if (state.smileStartTime == -1) {
+            state.smileStartTime = System.currentTimeMillis();
+        }
+
+        long elapsed = System.currentTimeMillis() - state.smileStartTime;
+        
+        // Map 500ms to 1.0 progress (within the 300-800ms requirement)
+        float progress = elapsed / 500.0f;
         return clamp01(progress);
     }
 
@@ -554,9 +555,9 @@ public class LivenessDetector {
         // Smooth interpolation
         guideProgress = interpolateProgress(guideProgress, newGuideProgress);
         
-        // Update state
+        // Update state only if bounds are present
         boolean wasInOval = faceInOval;
-        faceInOval = inBounds && guideProgress > 0.7f;
+        faceInOval = inBounds && guideProgress > 0.5f; // Slightly more lenient threshold (0.5 instead of 0.7)
         
         // Notify callback if state changed
         if (guideCallback != null && (wasInOval != faceInOval || Math.abs(guideProgress - newGuideProgress) > 0.05f)) {

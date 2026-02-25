@@ -19,15 +19,21 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import android.util.Size;
+import com.yalantis.ucrop.UCrop;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -62,6 +68,30 @@ public class CaptureNIDActivity extends AppCompatActivity {
                         resultIntent.putExtra(EXTRA_IMAGE_PATH, croppedPath);
                         if (side != null) resultIntent.putExtra(EXTRA_CAPTURE_SIDE, side);
                         setResult(Activity.RESULT_OK, resultIntent);
+                    }
+                }
+                finish();
+            });
+
+    // Launcher for uCrop — receives cropped image path
+    private final ActivityResultLauncher<Intent> uCropLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    android.net.Uri croppedUri = UCrop.getOutput(result.getData());
+                    String side = getIntent().getStringExtra(EXTRA_CAPTURE_SIDE);
+
+                    if (croppedUri != null) {
+                        String croppedPath = croppedUri.getPath();
+                        // Forward cropped result to the calling activity
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra(EXTRA_IMAGE_PATH, croppedPath);
+                        if (side != null) resultIntent.putExtra(EXTRA_CAPTURE_SIDE, side);
+                        setResult(Activity.RESULT_OK, resultIntent);
+                    }
+                } else if (result.getResultCode() == UCrop.RESULT_ERROR) {
+                    final Throwable cropError = UCrop.getError(result.getData());
+                    if (cropError != null) {
+                        Log.e("CaptureNIDActivity", "uCrop failed", cropError);
                     }
                 }
                 finish();
@@ -134,13 +164,28 @@ public class CaptureNIDActivity extends AppCompatActivity {
 
     private void bindUseCases(ProcessCameraProvider cameraProvider) {
         try {
-            Preview preview = new Preview.Builder().build();
+            // Use 4:3 aspect ratio as it's common for photo capture
+            ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
+                    .setAspectRatioStrategy(new AspectRatioStrategy(
+                            AspectRatio.RATIO_4_3,
+                            AspectRatioStrategy.FALLBACK_RULE_AUTO))
+                    .setResolutionStrategy(new ResolutionStrategy(
+                            new Size(1920, 1080), // Prefer 1080p if available
+                            ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+                    .build();
+
+            Preview preview = new Preview.Builder()
+                    .setResolutionSelector(resolutionSelector)
+                    .build();
+
             imageCapture = new ImageCapture.Builder()
                     .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                    .setResolutionSelector(resolutionSelector)
                     .build();
 
             ImageAnalysis analysis = new ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .setResolutionSelector(resolutionSelector)
                     .build();
 
             analysis.setAnalyzer(cameraExecutor, this::analyzeForAutoCapture);
@@ -188,6 +233,11 @@ public class CaptureNIDActivity extends AppCompatActivity {
                                     image.close();
                                     // Fix rotation
                                     Bitmap rotatedBitmap = rotateBitmap(bitmap, rotationDegrees);
+                                    if (rotatedBitmap != null) {
+                                        Log.d("CaptureNIDActivity", "Captured image resolution: " +
+                                                rotatedBitmap.getWidth() + "x" + rotatedBitmap.getHeight());
+                                    }
+                                    //Bitmap zoomBitmap = zoomBitmap(rotatedBitmap,0.3f, 0.3f);
                                     String savedPath = saveBitmapToFile(rotatedBitmap);
                                     BitmapHolder.setNidBitmap(rotatedBitmap);
                                     runOnUiThread(() -> {
@@ -231,6 +281,27 @@ public class CaptureNIDActivity extends AppCompatActivity {
         return rotated;
     }
 
+    public static Bitmap zoomBitmap(Bitmap original, float scaleX, float scaleY) {
+
+        int width = original.getWidth();
+        int height = original.getHeight();
+
+        Matrix matrix = new Matrix();
+
+        matrix.postScale(scaleX, scaleY);
+
+        Bitmap zoomedBitmap = Bitmap.createBitmap(
+                original,
+                0,
+                0,
+                width,
+                height,
+                matrix,
+                true);
+
+        return zoomedBitmap;
+    }
+
     private String saveBitmapToFile(Bitmap bitmap) {
         try {
             String side = getIntent().getStringExtra(EXTRA_CAPTURE_SIDE);
@@ -262,8 +333,23 @@ public class CaptureNIDActivity extends AppCompatActivity {
 
     private void launchCrop(String imagePath) {
         String side = getIntent().getStringExtra(EXTRA_CAPTURE_SIDE);
-        Intent cropIntent = CropActivity.createIntent(this, imagePath, side);
-        cropLauncher.launch(cropIntent);
+        String prefix = "front".equals(side) ? "nid_front_cropped_" : "nid_back_cropped_";
+        File dir = new File(getExternalFilesDir(null), "nid_images");
+        if (!dir.exists()) dir.mkdirs();
+        File destinationFile = new File(dir, prefix + System.currentTimeMillis() + ".jpg");
+
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        options.setCompressionQuality(90);
+        options.setHideBottomControls(false);
+        options.setFreeStyleCropEnabled(false);
+
+        UCrop uCrop = UCrop.of(android.net.Uri.fromFile(new File(imagePath)), android.net.Uri.fromFile(destinationFile))
+                //.withAspectRatio(1585, 1000) // ID card aspect ratio
+                .withAspectRatio(1.58f,1f)
+                .withOptions(options);
+
+        uCropLauncher.launch(uCrop.getIntent(this));
     }
 
     private void goToSelfie(android.graphics.Bitmap nidBitmap) {

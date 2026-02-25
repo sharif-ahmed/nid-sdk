@@ -128,11 +128,11 @@ public class NidInfoActivity extends AppCompatActivity {
             isValid = false;
         }
 
-        // Validate back image
-        if (backImagePath == null) {
+        // Validate back image - optional
+        /*if (backImagePath == null) {
             Toast.makeText(this, R.string.kyc_error_back_image, Toast.LENGTH_SHORT).show();
             isValid = false;
-        }
+        }*/
 
         // Validate NID number
         String nidNumber = binding.etNidNumber.getText() != null

@@ -1,5 +1,6 @@
 package citl_nid_sdk;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,6 +11,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -53,6 +56,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     private ProgressBar pbBlink, pbSmile, pbTurn;
     private ImageView imgBlinkCheck, imgSmileCheck, imgTurnCheck;
     private LivenessDetector.ActionType currentAction;
+    private Animation slideInAnim;
 
     public static void start(Context context) {
         context.startActivity(new Intent(context, SelfieActivity.class));
@@ -101,6 +105,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
 
         // Set instruction for first random step
         instruction.setText(livenessDetector.getCurrentInstruction());
+        slideInAnim = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
     }
 
     @Override
@@ -162,15 +167,53 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
         }
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @OptIn(markerClass = ExperimentalGetImage.class)
     private void analyzeLiveness(@NonNull ImageProxy imageProxy) {
         try {
-            InputImage img = InputImage.fromMediaImage(
-                    imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
+            InputImage img = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
             livenessDetector.analyzeFrame(img, result -> {
-                if (!result.faces.isEmpty()) {
-                    livenessDetector.processFace(result.faces);
-                }
+                runOnUiThread(() -> {
+                    String targetText;
+                    int backgroundRes = R.drawable.bg_instruction_rounded;
+                    boolean canCapture = false;
+
+                    if (result.faces.isEmpty()) {
+                        targetText = "Face not detected";
+                    } else if (result.faces.size() > 1) {
+                        targetText = "Multiple faces detected";
+                    } else {
+                        // Single face detected
+                        // Already processed inside analyzeFrame, so we just check the state
+                        boolean inOval = livenessDetector.isFaceInOval();
+                        if (livenessPassed) {
+                            if (inOval) {
+                                targetText = getString(R.string.nid_selfie_liveness_passed);
+                                backgroundRes = R.drawable.bg_live_ness_success;
+                                canCapture = true;
+                            } else {
+                                targetText = "Keep face in the oval for selfie";
+                                backgroundRes = R.drawable.bg_instruction_rounded;
+                                canCapture = false;
+                            }
+                        } else {
+                            // During liveness steps
+                            if (!inOval) {
+                                targetText = "Keep face in the oval";
+                            } else {
+                                targetText = livenessDetector.getCurrentInstruction();
+                            }
+                        }
+                    }
+
+                    // Update UI only if text changed to avoid redundant animations
+                    if (!instruction.getText().toString().equals(targetText)) {
+                        instruction.setText(targetText);
+                        instruction.startAnimation(slideInAnim);
+                    }
+                    instruction.setBackgroundResource(backgroundRes);
+                    captureButton.setEnabled(canCapture);
+                });
                 imageProxy.close();
             });
         } catch (Exception e) {
@@ -185,8 +228,6 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
             // Show current step progress on oval (round progress)
             overlayView.setOvalProgress(progress);
             updateProgressBar(action, progress);
-            // Keep instruction in sync with current action
-            instruction.setText(livenessDetector.getCurrentInstruction());
             if (completed) {
                 updateCheckmark(action, true);
             }
@@ -197,16 +238,11 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     public void onActionCompleted(LivenessDetector.ActionType action) {
         runOnUiThread(() -> {
             updateCheckmark(action, true);
-            // Next random step is now active: get instruction from detector
-            String nextInstruction = livenessDetector.getCurrentInstruction();
-            instruction.setText(nextInstruction);
             // Reset oval progress for next step (it will fill again for next action)
             overlayView.setOvalProgress(0f);
             currentAction = livenessDetector.getCurrentAction();
             if (currentAction != null) {
                 resetProgressBarForNextAction(currentAction);
-            } else {
-                instruction.setText(R.string.nid_liveness_completed);
             }
         });
     }
@@ -235,9 +271,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     public void onAllActionsCompleted() {
         runOnUiThread(() -> {
             livenessPassed = true;
-            instruction.setText(R.string.nid_selfie_liveness_passed);
-            captureButton.setEnabled(true);
-            //new Handler().postDelayed(this::captureSelfie,1000);
+            // Instruction and button state will be managed by analyzeLiveness/face check
         });
     }
 
