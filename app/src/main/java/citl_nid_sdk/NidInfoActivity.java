@@ -21,6 +21,10 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import citl_nid_sdk.databinding.ActivityNidInfoBinding;
 
 
@@ -29,6 +33,8 @@ public class NidInfoActivity extends AppCompatActivity {
     private ActivityNidInfoBinding binding;
     private String frontImagePath = null;
     private String backImagePath = null;
+    private String frontOcrRawData = null;
+    private String backOcrRawData = null;
     private ExecutorService executor;
 
     // Launcher for CaptureNIDActivity — receives image path back
@@ -49,9 +55,15 @@ public class NidInfoActivity extends AppCompatActivity {
                             ocr.process(nidFront, new NIDOCRProcessor.Callback() {
                                 @Override
                                 public void onSuccess(NIDInfo info) {
+                                    frontOcrRawData = info.getOcrRawData();
                                     binding.etNidNumber.setText(info.getNidNumber());
                                     binding.etDob.setText(info.getDateOfBirth());
                                     binding.etFullName.setText(info.getName());
+                                    binding.etFullNameBangla.setText(info.getNameBangla());
+                                    //binding.etFatherName.setText(info.getFatherName());
+                                    binding.etFatherNameBangla.setText(info.getFatherNameBangla());
+                                    //binding.etMotherName.setText(info.getMotherName());
+                                    binding.etMotherNameBangla.setText(info.getMotherNameBangla());
                                 }
                                 @Override
                                 public void onError(Exception e) {}
@@ -59,9 +71,26 @@ public class NidInfoActivity extends AppCompatActivity {
                         });
                     } else if (imagePath != null && "back".equals(side)) {
                         backImagePath = imagePath;
-                        binding.imgNidBack.setImageBitmap(BitmapFactory.decodeFile(backImagePath));
+                        Bitmap nidBack = BitmapFactory.decodeFile(backImagePath);
+                        binding.imgNidBack.setImageBitmap(nidBack);
                         binding.imgNidBack.setVisibility(View.VISIBLE);
                         binding.txtBackPlaceholder.setVisibility(View.GONE);
+                        
+                        // Extract address from back side
+                        NIDOCRProcessor ocr = new NIDOCRProcessor(this);
+                        executor.execute(()->{
+                            ocr.process(nidBack, new NIDOCRProcessor.Callback() {
+                                @Override
+                                public void onSuccess(NIDInfo info) {
+                                    backOcrRawData = info.getOcrRawData();
+                                    if (info.getAddressBangla() != null && !info.getAddressBangla().isEmpty()) {
+                                        binding.etAddressBangla.setText(info.getAddressBangla());
+                                    }
+                                }
+                                @Override
+                                public void onError(Exception e) {}
+                            });
+                        });
                     }
                 }
             });
@@ -129,10 +158,10 @@ public class NidInfoActivity extends AppCompatActivity {
         }
 
         // Validate back image - optional
-        /*if (backImagePath == null) {
+        if (backImagePath == null) {
             Toast.makeText(this, R.string.kyc_error_back_image, Toast.LENGTH_SHORT).show();
             isValid = false;
-        }*/
+        }
 
         // Validate NID number
         String nidNumber = binding.etNidNumber.getText() != null
@@ -154,6 +183,39 @@ public class NidInfoActivity extends AppCompatActivity {
             binding.tilFullName.setError(null);
         }
 
+        // Bangla Name, Father Name, Mother Name can be optional or validated as needed
+        String nameBangla = binding.etFullNameBangla.getText() != null
+                ? binding.etFullNameBangla.getText().toString().trim() : "";
+        
+        // Validate father name
+        /*String fatherName = binding.etFatherName.getText() != null
+                ? binding.etFatherName.getText().toString().trim() : "";
+        if (fatherName.isEmpty()) {
+            binding.tilFatherName.setError(getString(R.string.kyc_error_father_name));
+            isValid = false;
+        } else {
+            binding.tilFatherName.setError(null);
+        }*/
+
+        String fatherNameBangla = binding.etFatherNameBangla.getText() != null
+                ? binding.etFatherNameBangla.getText().toString().trim() : "";
+
+        // Validate mother name
+        /*String motherName = binding.etMotherName.getText() != null
+                ? binding.etMotherName.getText().toString().trim() : "";
+        if (motherName.isEmpty()) {
+            binding.tilMotherName.setError(getString(R.string.kyc_error_mother_name));
+            isValid = false;
+        } else {
+            binding.tilMotherName.setError(null);
+        }*/
+
+        String motherNameBangla = binding.etMotherNameBangla.getText() != null
+                ? binding.etMotherNameBangla.getText().toString().trim() : "";
+
+        String addressBangla = binding.etAddressBangla.getText() != null
+                ? binding.etAddressBangla.getText().toString().trim() : "";
+
         // Validate DOB
         String dob = binding.etDob.getText() != null
                 ? binding.etDob.getText().toString().trim() : "";
@@ -165,15 +227,106 @@ public class NidInfoActivity extends AppCompatActivity {
         }
 
         if (!isValid) return;
-
-        // Save to Room database
-        saveToDatabase(nidNumber, fullName, dob);
+        saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob);
+        //performECValidation(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob);
     }
 
-    private void saveToDatabase(String nidNumber, String fullName, String dob) {
+    private void performECValidation(String nidNumber, String fullName, String nameBangla, String fatherNameBangla, String motherNameBangla, String addressBangla, String dob) {
+        // Show progress UI or dialog
+        MaterialAlertDialogBuilder progressDialog = new MaterialAlertDialogBuilder(this)
+                .setTitle("Verifying")
+                .setMessage("Validating NID with EC service...")
+                .setCancelable(false);
+        androidx.appcompat.app.AlertDialog dialog = progressDialog.show();
+
+        String fullOcrData = (frontOcrRawData != null ? frontOcrRawData : "") + "\n" + (backOcrRawData != null ? backOcrRawData : "");
+        EcRequest request = new EcRequest(nidNumber, dob, fullName, fullOcrData);
+
+        ApiClient.getService(this).validateEC(request).enqueue(new Callback<SdkResponse>() {
+            @Override
+            public void onResponse(Call<SdkResponse> call, Response<SdkResponse> response) {
+                dialog.dismiss();
+                if (response.isSuccessful() && response.body() != null) {
+                    SdkResponse sdkResponse = response.body();
+                    if ("SUCCESS".equalsIgnoreCase(sdkResponse.status)) {
+                        if (sdkResponse.ecValidation != null && sdkResponse.ecValidation.nidMatch && sdkResponse.ecValidation.dobMatch) {
+                            saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob);
+                        } else {
+                            showErrorDialog(NIDError.E101, "NID or Date of Birth mismatch.");
+                        }
+                    } else {
+                        showErrorDialog(sdkResponse.errorCode != null ? sdkResponse.errorCode : NIDError.E500, sdkResponse.message);
+                    }
+                } else {
+                    showErrorDialog(NIDError.E102, "EC API Timeout or connection error.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SdkResponse> call, Throwable t) {
+                dialog.dismiss();
+                showErrorDialog(NIDError.E102, "EC API Timeout or network failure: " + t.getMessage());
+            }
+        });
+    }
+
+    private void showErrorDialog(String errorCode, String message) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Verification Failed")
+                .setMessage("Error Code: " + errorCode + "\n" + message)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    private void saveToDatabase(String nidNumber, String fullName, String nameBangla, String fatherName, String fatherNameBangla, String motherName, String motherNameBangla, String dob) {
         NidInfoEntity entity = new NidInfoEntity();
         entity.setNidNumber(nidNumber);
         entity.setFullName(fullName);
+        entity.setNameBangla(nameBangla);
+        entity.setFatherName(fatherName);
+        entity.setFatherNameBangla(fatherNameBangla);
+        entity.setMotherName(motherName);
+        entity.setMotherNameBangla(motherNameBangla);
+        entity.setDateOfBirth(dob);
+        entity.setFrontImagePath(frontImagePath);
+        entity.setBackImagePath(backImagePath);
+
+        executor.execute(() -> {
+            NidDatabase db = NidDatabase.getDatabase(getApplicationContext());
+            db.nidInfoDao().insert(entity);
+
+            runOnUiThread(this::showSuccessDialog);
+        });
+    }
+    private void saveToDatabase(String nidNumber, String fullName, String nameBangla, String fatherNameBangla, String motherNameBangla, String addressBangla, String dob) {
+        NidInfoEntity entity = new NidInfoEntity();
+        entity.setNidNumber(nidNumber);
+        entity.setFullName(fullName);
+        entity.setNameBangla(nameBangla);
+        entity.setFatherNameBangla(fatherNameBangla);
+        entity.setMotherNameBangla(motherNameBangla);
+        entity.setAddressBangla(addressBangla);
+        entity.setDateOfBirth(dob);
+        entity.setFrontImagePath(frontImagePath);
+        entity.setBackImagePath(backImagePath);
+        entity.setOcrRawDataFront(frontOcrRawData);
+        entity.setOcrRawDataBack(backOcrRawData);
+
+        executor.execute(() -> {
+            NidDatabase db = NidDatabase.getDatabase(getApplicationContext());
+            db.nidInfoDao().insert(entity);
+
+            runOnUiThread(this::showSuccessDialog);
+        });
+    }
+
+    private void saveToDatabase(String nidNumber, String fullName, String nameBangla, String fatherNameBangla, String motherNameBangla, String dob) {
+        NidInfoEntity entity = new NidInfoEntity();
+        entity.setNidNumber(nidNumber);
+        entity.setFullName(fullName);
+        entity.setNameBangla(nameBangla);
+        entity.setFatherNameBangla(fatherNameBangla);
+        entity.setMotherNameBangla(motherNameBangla);
         entity.setDateOfBirth(dob);
         entity.setFrontImagePath(frontImagePath);
         entity.setBackImagePath(backImagePath);

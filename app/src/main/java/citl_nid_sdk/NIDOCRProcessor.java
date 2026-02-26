@@ -11,7 +11,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,8 +32,12 @@ public class NIDOCRProcessor {
     public void process(Bitmap nidBitmap, Callback callback) {
         try {
             InputImage image = InputImage.fromBitmap(nidBitmap, 0);
-            com.google.mlkit.vision.text.TextRecognizer recognizer =
-                    TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
+            /*com.google.mlkit.vision.text.TextRecognizer recognizer =
+                    TextRecognition.getClient(DevanagariTextRecognizerOptions.DEFAULT_OPTIONS);*/
+
+            com.google.mlkit.vision.text.TextRecognizer recognizer = TextRecognition.getClient(
+                    new DevanagariTextRecognizerOptions.Builder().build());
 
             Task<Text> task = recognizer.process(image);
             task.addOnSuccessListener(new OnSuccessListener<Text>() {
@@ -47,15 +51,31 @@ public class NIDOCRProcessor {
                     String nidNumber = BangladeshNidParser.extractNid(textNorm);
                     String dob = BangladeshNidParser.extractDOB(textNorm);
                     String name = BangladeshNidParser.extractName(textNorm);
+                    String nameBangla = BangladeshNidParser.extractBanglaName(textNorm);
+                    String fatherName = BangladeshNidParser.extractFatherName(textNorm);
+                    //String fatherNameBangla = BangladeshNidParser.extractBanglaFatherName(textNorm);
+                    String fatherNameBangla = BangladeshNidParser.extractFatherBanglaName(textNorm);
+                    String motherName = BangladeshNidParser.extractMotherName(textNorm);
+                    //String motherNameBangla = BangladeshNidParser.extractBanglaMotherName(textNorm);
+                    //String motherNameBangla = BangladeshNidParser.extractBanglaMotherName(fullText);
+                    String motherNameBangla = BangladeshNidParser.extractMotherBanglaName(fullText);
+                    String addressBangla = BangladeshNidParser.extractBanglaAddress(textNorm);
 
                     NIDInfo info = new NIDInfo(nidNumber, name, dob);
+                    info.setNameBangla(nameBangla);
+                    info.setFatherName(fatherName);
+                    info.setFatherNameBangla(fatherNameBangla);
+                    info.setMotherName(motherName);
+                    info.setMotherNameBangla(motherNameBangla);
+                    info.setAddressBangla(addressBangla);
                     info.setNidFrontImage(nidBitmap);
+                    info.setOcrRawData(fullText);
                     callback.onSuccess(info);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    callback.onError(e);
+                    callback.onError(new Exception(NIDError.E100 + ": " + e.getMessage()));
                 }
             });
 

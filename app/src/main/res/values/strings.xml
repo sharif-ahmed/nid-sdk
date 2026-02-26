@@ -43,6 +43,12 @@
     <string name="kyc_capture_back">Capture Back Image</string>
     <string name="kyc_nid_number_hint">NID Number</string>
     <string name="kyc_full_name_hint">Full Name (English)</string>
+    <string name="kyc_full_name_bangla_hint">পুরো নাম (বাংলা)</string>
+    <string name="kyc_father_name_hint">Father\'s Name (English)</string>
+    <string name="kyc_father_name_bangla_hint">পিতার নাম (বাংলা)</string>
+    <string name="kyc_mother_name_hint">Mother\'s Name (English)</string>
+    <string name="kyc_mother_name_bangla_hint">মাতার নাম (বাংলা)</string>
+    <string name="kyc_address_bangla_hint">ঠিকানা (বাংলা)</string>
     <string name="kyc_dob_hint">Date of Birth</string>
     <string name="kyc_submit">Submit Information</string>
     <string name="kyc_tap_to_capture">Tap to capture</string>
@@ -50,7 +56,10 @@
     <!-- NID Validation -->
     <string name="kyc_error_nid_number">Please enter your NID number</string>
     <string name="kyc_error_full_name">Please enter your full name</string>
+    <string name="kyc_error_father_name">Please enter your father\'s name</string>
+    <string name="kyc_error_mother_name">Please enter your mother\'s name</string>
     <string name="kyc_error_dob">Please select your date of birth</string>
+    <string name="nid_error_front_image">Please capture the NID front image</string>
     <string name="kyc_error_front_image">Please capture the NID front image</string>
     <string name="kyc_error_back_image">Please capture the NID back image</string>
     <string name="kyc_success_title">Success!</string>

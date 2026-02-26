@@ -102,8 +102,8 @@ public class OverlayView extends View {
             }
 
         } else {
-            float cardWidth = width * 0.85f;
-            float cardHeight = cardWidth * 0.63f;
+            float cardWidth = width * 0.95f;
+            float cardHeight = cardWidth * 0.68f;
             float left = (width - cardWidth) / 2;
             float top = (height - cardHeight) / 2;
             focusRect = new RectF(left, top, left + cardWidth, top + cardHeight);

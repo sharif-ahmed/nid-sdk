@@ -270,6 +270,171 @@
                     android:textSize="15sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Full Name (Bangla) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilFullNameBangla"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundColor="@color/kyc_surface"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/kyc_primary"
+                app:hintTextColor="@color/kyc_primary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etFullNameBangla"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/kyc_full_name_bangla_hint"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/kyc_text_primary"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Father's Name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilFatherName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundColor="@color/kyc_surface"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                android:visibility="gone"
+                app:boxStrokeColor="@color/kyc_primary"
+                app:hintTextColor="@color/kyc_primary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etFatherName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/kyc_father_name_hint"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/kyc_text_primary"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Father's Name (Bangla) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilFatherNameBangla"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundColor="@color/kyc_surface"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/kyc_primary"
+                app:hintTextColor="@color/kyc_primary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etFatherNameBangla"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/kyc_father_name_bangla_hint"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/kyc_text_primary"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Mother's Name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilMotherName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundColor="@color/kyc_surface"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                android:visibility="gone"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/kyc_primary"
+                app:hintTextColor="@color/kyc_primary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMotherName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/kyc_mother_name_hint"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/kyc_text_primary"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Mother's Name (Bangla) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilMotherNameBangla"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundColor="@color/kyc_surface"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/kyc_primary"
+                app:hintTextColor="@color/kyc_primary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMotherNameBangla"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/kyc_mother_name_bangla_hint"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/kyc_text_primary"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Address (Bangla) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilAddressBangla"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundColor="@color/kyc_surface"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/kyc_primary"
+                app:hintTextColor="@color/kyc_primary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAddressBangla"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/kyc_address_bangla_hint"
+                    android:inputType="textMultiLine"
+                    android:minLines="2"
+                    android:textColor="@color/kyc_text_primary"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Date of Birth -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDob"

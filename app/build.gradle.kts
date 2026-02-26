@@ -58,6 +58,7 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation("com.github.yalantis:ucrop:2.2.11")
+    implementation("com.google.mlkit:text-recognition-devanagari:16.0.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
