@@ -53,12 +53,10 @@ public class NIDOCRProcessor {
                     String name = BangladeshNidParser.extractName(textNorm);
                     String nameBangla = BangladeshNidParser.extractBanglaName(textNorm);
                     String fatherName = BangladeshNidParser.extractFatherName(textNorm);
-                    //String fatherNameBangla = BangladeshNidParser.extractBanglaFatherName(textNorm);
-                    String fatherNameBangla = BangladeshNidParser.extractFatherBanglaName(textNorm);
+                    String fatherNameBangla = BangladeshNidParser.extractBanglaFatherName(textNorm);
                     String motherName = BangladeshNidParser.extractMotherName(textNorm);
                     //String motherNameBangla = BangladeshNidParser.extractBanglaMotherName(textNorm);
-                    //String motherNameBangla = BangladeshNidParser.extractBanglaMotherName(fullText);
-                    String motherNameBangla = BangladeshNidParser.extractMotherBanglaName(fullText);
+                    String motherNameBangla = BangladeshNIDParse.extractMotherName(fullText);
                     String addressBangla = BangladeshNidParser.extractBanglaAddress(textNorm);
 
                     NIDInfo info = new NIDInfo(nidNumber, name, dob);
