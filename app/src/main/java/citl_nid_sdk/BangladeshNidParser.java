@@ -17,6 +17,7 @@ public class BangladeshNidParser {
         public String nidNumber = "";
         public boolean isBangladeshNid = false;
     }
+
     public static NidData parse(String rawText) {
 
         NidData data = new NidData();
@@ -40,14 +41,14 @@ public class BangladeshNidParser {
 
 
     // Normalize OCR text
-    static String normalize(String text){
+    static String normalize(String text) {
         return text
-                .replace("Namie","Name")
-                .replace("Narne","Name")
-                .replace("Nane","Name")
-                .replace("Govemment","Government")
-                .replace("Govermment","Government")
-                .replace("Peoples","People's")
+                .replace("Namie", "Name")
+                .replace("Narne", "Name")
+                .replace("Nane", "Name")
+                .replace("Govemment", "Government")
+                .replace("Govermment", "Government")
+                .replace("Peoples", "People's")
                 .replace("সাম", "নাম") // Common OCR misspelling
                 .replace("ন্যম", "নাম") // Common OCR misspelling
                 .replace("ना", "নাম") // Common OCR misspelling
@@ -69,10 +70,9 @@ public class BangladeshNidParser {
                 .replace("National D Card", "National ID Card")
                 .replace("জন্ম তারিখ:", "DOB")
                 .replace("এনআইডি নম্বর:", "NID No")
-                .replaceAll("[|]"," ")
+                .replaceAll("[|]", " ")
                 .trim();
     }
-
 
 
     // Validate Bangladesh NID
@@ -106,41 +106,41 @@ public class BangladeshNidParser {
     }
 
     // Extract NID Number
-    static String extractNid(String text){
+    static String extractNid(String text) {
         Pattern pattern = Pattern.compile("\\b\\d{3}\\s?\\d{3}\\s?\\d{4}\\b");
         Matcher matcher = pattern.matcher(text);
-        if(matcher.find()) return matcher.group();
+        if (matcher.find()) return BangladeshNidParser.cleanNid(matcher.group());
         return "";
     }
 
     // Extract DOB
-    static String extractDOB(String text){
+    static String extractDOB(String text) {
         Pattern pattern = Pattern.compile(
                 "\\b\\d{1,2}\\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s\\d{4}\\b"
         );
         Matcher matcher = pattern.matcher(text);
-        if(matcher.find()) return matcher.group();
+        if (matcher.find()) return matcher.group();
         return "";
     }
 
     // Extract Name (English)
-    static String extractName(String text){
+    static String extractName(String text) {
         String[] lines = text.split("\\n");
-        for(int i=0;i<lines.length;i++){
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
-            if(line.equalsIgnoreCase("Name") || line.contains("Name") || line.contains("নাম")){
-                if(i+1 < lines.length){
-                    String nameLine = lines[i+1].trim();
-                    if(nameLine.matches("[A-Z ]{3,}")) return nameLine;
+            if (line.equalsIgnoreCase("Name") || line.contains("Name") || line.contains("নাম")) {
+                if (i + 1 < lines.length) {
+                    String nameLine = lines[i + 1].trim();
+                    if (nameLine.matches("[A-Z ]{3,}")) return nameLine;
                 }
             }
         }
-        for(String line : lines){
+        for (String line : lines) {
             line = line.trim();
-            if(line.matches("[A-Z ]{5,}")
+            if (line.matches("[A-Z ]{5,}")
                     && !line.contains("GOVERNMENT")
                     && !line.contains("NATIONAL")
-                    && !line.contains("REPUBLIC")){
+                    && !line.contains("REPUBLIC")) {
                 return line;
             }
         }
@@ -155,13 +155,23 @@ public class BangladeshNidParser {
             if (line.contains("নাম") || line.contains("Name") || line.equals("নাম")) {
                 // In some formats, Bangla name is BEFORE "Name" label or AFTER "নাম"
                 if (i > 0) {
-                    String prevLine = lines[i-1].trim();
+                    String prevLine = lines[i - 1].trim();
                     if (isBangla(prevLine) && prevLine.length() > 2) return prevLine;
                 }
                 if (i + 1 < lines.length) {
-                    String nextLine = lines[i+1].trim();
+                    String nextLine = lines[i + 1].trim();
                     if (isBangla(nextLine) && nextLine.length() > 2) return nextLine;
                 }
+            }
+        }
+        for (String line : lines) {
+            line = line.trim();
+            if (!line.matches("[A-Z ]{5,}")
+                    && !line.contains("GOVERNMENT")
+                    && !line.contains("NATIONAL")
+                    && !line.contains("REPUBLIC")
+            ) {
+                return line;
             }
         }
         return "";
@@ -206,7 +216,7 @@ public class BangladeshNidParser {
             String line = lines[i].trim();
             if (line.contains("পিতা") || line.contains("Father")) {
                 if (i + 1 < lines.length) {
-                    String nextLine = lines[i+1].trim();
+                    String nextLine = lines[i + 1].trim();
                     if (isBangla(nextLine)) return nextLine;
                 }
             }
@@ -278,7 +288,7 @@ public class BangladeshNidParser {
                 }
                 // Check next line
                 if (i + 1 < lines.length) {
-                    String nextLine = lines[i+1].trim();
+                    String nextLine = lines[i + 1].trim();
                     if (isBangla(nextLine)) return nextLine;
                 }
             }
@@ -289,7 +299,7 @@ public class BangladeshNidParser {
         String[] dobKeywords = {"Date of Birth", "DOB", "জন্ম তারিখ", "জন্ম"};
         int dobIndex = -1;
         String foundKeyword = "";
-        
+
         for (String key : dobKeywords) {
             dobIndex = text.indexOf(key);
             if (dobIndex != -1) {
@@ -314,18 +324,19 @@ public class BangladeshNidParser {
 
         return motherName;
     }
-    public static String extractFatherBanglaName(String ocrText){
+
+    public static String extractFatherBanglaName(String ocrText) {
 
         String[] lines = ocrText.split("\\n");
 
         // ===== STEP 1: Try 'পিতা' keyword =====
-        for(int i=0; i<lines.length; i++){
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
-            if(line.contains("পিতা") || line.contains("পিত") || line.toLowerCase().contains("father")){
+            if (line.contains("পিতা") || line.contains("পিত") || line.toLowerCase().contains("father")) {
                 // next 1-2 lines check
-                for(int j=i+1; j<=i+2 && j<lines.length; j++){
+                for (int j = i + 1; j <= i + 2 && j < lines.length; j++) {
                     String possible = lines[j].trim();
-                    if(isBangla(possible)){
+                    if (isBangla(possible)) {
                         return possible;
                     }
                 }
@@ -333,13 +344,13 @@ public class BangladeshNidParser {
         }
 
         // ===== STEP 2: Fallback: English Name + skip line + next line =====
-        for(int i=0; i<lines.length; i++){
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
-            if(isEnglishName(line)){
+            if (isEnglishName(line)) {
                 int targetIndex = i + 2; // skip 1 line
-                if(targetIndex < lines.length){
+                if (targetIndex < lines.length) {
                     String fallback = lines[targetIndex].trim();
-                    if(isBangla(fallback)){
+                    if (isBangla(fallback)) {
                         return fallback;
                     }
                 }
@@ -347,12 +358,12 @@ public class BangladeshNidParser {
         }
 
         // ===== STEP 3: Forward scan next 4 lines after English Name =====
-        for(int i=0; i<lines.length; i++){
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
-            if(isEnglishName(line)){
-                for(int j=i+1; j<=i+4 && j<lines.length; j++){
+            if (isEnglishName(line)) {
+                for (int j = i + 1; j <= i + 4 && j < lines.length; j++) {
                     String next = lines[j].trim();
-                    if(isBangla(next)){
+                    if (isBangla(next)) {
                         return next;
                     }
                 }
@@ -360,28 +371,29 @@ public class BangladeshNidParser {
         }
 
         // ===== STEP 4: Fallback: 9th line (index 8) =====
-        if(lines.length >= 9){
+        if (lines.length >= 9) {
             String line9 = lines[8].trim();
-            if(isBangla(line9)){
+            if (isBangla(line9)) {
                 return line9;
             }
         }
 
         return "";
     }
+
     // Mother Name extractor
-    public static String extractMotherBanglaName(String ocrText){
+    public static String extractMotherBanglaName(String ocrText) {
 
         String[] lines = ocrText.split("\\n");
 
         // ===== STEP 1: Try 'মাতা' keyword =====
-        for(int i=0; i<lines.length; i++){
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
-            if(line.contains("মাতা") || line.contains("মাত") || line.toLowerCase().contains("mother")){
+            if (line.contains("মাতা") || line.contains("মাত") || line.toLowerCase().contains("mother")) {
                 // next 1-2 lines check
-                for(int j=i+1; j<=i+2 && j<lines.length; j++){
+                for (int j = i + 1; j <= i + 2 && j < lines.length; j++) {
                     String possible = lines[j].trim();
-                    if(isBangla(possible)){
+                    if (isBangla(possible)) {
                         return possible;
                     }
                 }
@@ -389,13 +401,13 @@ public class BangladeshNidParser {
         }
 
         // ===== STEP 2: Fallback: Date of Birth line এর আগের Bangla line =====
-        for(int i=0; i<lines.length; i++){
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim().toLowerCase();
-            if(line.contains("date of birth") || line.contains("dob")){
+            if (line.contains("date of birth") || line.contains("dob")) {
                 // scan previous 1-3 lines
-                for(int j=i-1; j>=0 && j>=i-3; j--){
+                for (int j = i - 1; j >= 0 && j >= i - 3; j--) {
                     String prev = lines[j].trim();
-                    if(isBangla(prev)){
+                    if (isBangla(prev)) {
                         return prev;
                     }
                 }
@@ -403,17 +415,17 @@ public class BangladeshNidParser {
         }
 
         // ===== STEP 3: Fallback: 11th line (index 10) =====
-        if(lines.length >= 11){
+        if (lines.length >= 11) {
             String line11 = lines[10].trim();
-            if(isBangla(line11)){
+            if (isBangla(line11)) {
                 return line11;
             }
         }
 
         // ===== STEP 4: Last resort: forward scan top 10 lines for Bangla name =====
-        for(int i=0; i<Math.min(10, lines.length); i++){
+        for (int i = 0; i < Math.min(10, lines.length); i++) {
             String text = lines[i].trim();
-            if(isBangla(text)){
+            if (isBangla(text)) {
                 return text;
             }
         }
@@ -438,7 +450,7 @@ public class BangladeshNidParser {
     }
 
     // English Name detect
-    private static boolean isEnglishName(String text){
+    private static boolean isEnglishName(String text) {
         return text.matches("^[A-Z ]{3,}$");
     }
 
@@ -468,7 +480,7 @@ public class BangladeshNidParser {
                 }
                 // Append multi-line address
                 address.append(line).append(" ");
-                
+
                 // Usually address is 2-4 lines long
                 if (address.toString().split(" ").length > 20) break;
             }
@@ -479,15 +491,20 @@ public class BangladeshNidParser {
             for (String line : lines) {
                 String l = line.trim();
                 if (l.contains("বাসা") || l.contains("গ্রাম/রাস্তা") || l.contains("ডাকঘর")) {
-                     address.append(l).append(" ");
-                     foundAddress = true;
+                    address.append(l).append(" ");
+                    foundAddress = true;
                 } else if (foundAddress) {
-                     if (l.isEmpty() || l.contains("রক্তের")) break;
-                     address.append(l).append(" ");
+                    if (l.isEmpty() || l.contains("রক্তের")) break;
+                    address.append(l).append(" ");
                 }
             }
         }
 
         return address.toString().trim();
+    }
+
+    public static String cleanNid(String input) {
+        if (input == null) return "";
+        return input.replaceAll("[^0-9]", "");
     }
 }

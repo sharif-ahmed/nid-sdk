@@ -6,7 +6,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -51,11 +55,12 @@ public class NidInfoActivity extends AppCompatActivity {
                         binding.imgNidFront.setVisibility(View.VISIBLE);
                         binding.txtFrontPlaceholder.setVisibility(View.GONE);
                         NIDOCRProcessor ocr = new NIDOCRProcessor(this);
-                        executor.execute(()->{
+                        executor.execute(() -> {
                             ocr.process(nidFront, new NIDOCRProcessor.Callback() {
                                 @Override
                                 public void onSuccess(NIDInfo info) {
                                     frontOcrRawData = info.getOcrRawData();
+                                    Log.d("NID_INFO_OCR", frontOcrRawData);
                                     binding.etNidNumber.setText(info.getNidNumber());
                                     binding.etDob.setText(info.getDateOfBirth());
                                     binding.etFullName.setText(info.getName());
@@ -65,8 +70,10 @@ public class NidInfoActivity extends AppCompatActivity {
                                     //binding.etMotherName.setText(info.getMotherName());
                                     binding.etMotherNameBangla.setText(info.getMotherNameBangla());
                                 }
+
                                 @Override
-                                public void onError(Exception e) {}
+                                public void onError(Exception e) {
+                                }
                             });
                         });
                     } else if (imagePath != null && "back".equals(side)) {
@@ -75,10 +82,10 @@ public class NidInfoActivity extends AppCompatActivity {
                         binding.imgNidBack.setImageBitmap(nidBack);
                         binding.imgNidBack.setVisibility(View.VISIBLE);
                         binding.txtBackPlaceholder.setVisibility(View.GONE);
-                        
+
                         // Extract address from back side
                         NIDOCRProcessor ocr = new NIDOCRProcessor(this);
-                        executor.execute(()->{
+                        executor.execute(() -> {
                             ocr.process(nidBack, new NIDOCRProcessor.Callback() {
                                 @Override
                                 public void onSuccess(NIDInfo info) {
@@ -87,8 +94,10 @@ public class NidInfoActivity extends AppCompatActivity {
                                         binding.etAddressBangla.setText(info.getAddressBangla());
                                     }
                                 }
+
                                 @Override
-                                public void onError(Exception e) {}
+                                public void onError(Exception e) {
+                                }
                             });
                         });
                     }
@@ -186,7 +195,7 @@ public class NidInfoActivity extends AppCompatActivity {
         // Bangla Name, Father Name, Mother Name can be optional or validated as needed
         String nameBangla = binding.etFullNameBangla.getText() != null
                 ? binding.etFullNameBangla.getText().toString().trim() : "";
-        
+
         // Validate father name
         /*String fatherName = binding.etFatherName.getText() != null
                 ? binding.etFatherName.getText().toString().trim() : "";
@@ -227,11 +236,22 @@ public class NidInfoActivity extends AppCompatActivity {
         }
 
         if (!isValid) return;
-        saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob);
-        //performECValidation(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob);
+        String formatedDate = DateConverter.convertDate(dob);
+        String nid = nidNumber.trim().toString();
+        //saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, formatedDate);
+        performECValidation(nid, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, formatedDate, true);
     }
 
-    private void performECValidation(String nidNumber, String fullName, String nameBangla, String fatherNameBangla, String motherNameBangla, String addressBangla, String dob) {
+    private void performECValidation(
+            String nidNumber,
+            String fullName,
+            String nameBangla,
+            String fatherNameBangla,
+            String motherNameBangla,
+            String addressBangla,
+            String dob,
+            boolean isFaceMatchRequired
+    ) {
         // Show progress UI or dialog
         MaterialAlertDialogBuilder progressDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("Verifying")
@@ -240,45 +260,80 @@ public class NidInfoActivity extends AppCompatActivity {
         androidx.appcompat.app.AlertDialog dialog = progressDialog.show();
 
         String fullOcrData = (frontOcrRawData != null ? frontOcrRawData : "") + "\n" + (backOcrRawData != null ? backOcrRawData : "");
-        EcRequest request = new EcRequest(nidNumber, dob, fullName, fullOcrData);
+        //EcRequest request = new EcRequest(nidNumber, dob, fullName, fullOcrData);
+        NidECVerifyRequest request = new NidECVerifyRequest(
+                nidNumber,
+                fullName,
+                nameBangla,
+                dob,
+                fatherNameBangla,
+                motherNameBangla,
+                addressBangla,
+                isFaceMatchRequired
+        );
 
-        ApiClient.getService(this).validateEC(request).enqueue(new Callback<SdkResponse>() {
+        String apiKey = CallbackHolder.getInstance().getLicenseKey();
+
+        ApiClient.getService(this).validateEC(apiKey, request).enqueue(new Callback<NidEcVerifyResponse>() {
             @Override
-            public void onResponse(Call<SdkResponse> call, Response<SdkResponse> response) {
-                dialog.dismiss();
-                if (response.isSuccessful() && response.body() != null) {
-                    SdkResponse sdkResponse = response.body();
-                    if ("SUCCESS".equalsIgnoreCase(sdkResponse.status)) {
-                        if (sdkResponse.ecValidation != null && sdkResponse.ecValidation.nidMatch && sdkResponse.ecValidation.dobMatch) {
-                            saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob);
+            public void onResponse(Call<NidEcVerifyResponse> call, Response<NidEcVerifyResponse> response) {
+                try {
+                    dialog.dismiss();
+                    NidEcVerifyResponse ecVerifyResponse = response.body();
+                    if (response.isSuccessful() && response.body() != null) {
+                        if (ecVerifyResponse.getData() != null) {
+                            showStatusDialog(
+                                    true,
+                                    String.valueOf(response.code()),
+                                    "NID EC Verify Successful!!",
+                                    () -> {
+                                        String txId = ecVerifyResponse.getData().getTransactionId();
+                                        saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId);
+                                    }
+                            );
                         } else {
-                            showErrorDialog(NIDError.E101, "NID or Date of Birth mismatch.");
+                            showStatusDialog(
+                                    false,
+                                    String.valueOf(response.code()),
+                                    "Api SUCCESS, But No Data Found For Success Response",
+                                    () -> {
+                                        String txId2 = "4c8f6199-1427-4385-9789-81066ea5cd9a";
+                                        saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId2);
+                                    }
+                            );
                         }
                     } else {
-                        showErrorDialog(sdkResponse.errorCode != null ? sdkResponse.errorCode : NIDError.E500, sdkResponse.message);
+                        if (response.code() == 401) {
+                            showStatusDialog(
+                                    false,
+                                    String.valueOf(ecVerifyResponse != null ? ecVerifyResponse.result.getStatusCode() : 401),
+                                    ecVerifyResponse != null ? ecVerifyResponse.result.getErrorMsg() : "Unauthorized",
+                                    () -> {
+                                        Intent intent = new Intent(NidInfoActivity.this, VerificationStepActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        intent.putExtra("finish", true);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                            );
+                        } else {
+                            showErrorDialog(String.valueOf(response.code()), response.message());
+                        }
                     }
-                } else {
-                    showErrorDialog(NIDError.E102, "EC API Timeout or connection error.");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
             @Override
-            public void onFailure(Call<SdkResponse> call, Throwable t) {
+            public void onFailure(Call<NidEcVerifyResponse> call, Throwable t) {
                 dialog.dismiss();
-                showErrorDialog(NIDError.E102, "EC API Timeout or network failure: " + t.getMessage());
+                showErrorDialog("Api Error", t.getMessage());
             }
         });
     }
 
-    private void showErrorDialog(String errorCode, String message) {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Verification Failed")
-                .setMessage("Error Code: " + errorCode + "\n" + message)
-                .setPositiveButton("OK", null)
-                .show();
-    }
-
-    private void saveToDatabase(String nidNumber, String fullName, String nameBangla, String fatherName, String fatherNameBangla, String motherName, String motherNameBangla, String dob) {
+    /*private void saveToDatabase(String nidNumber, String fullName, String nameBangla, String fatherName, String fatherNameBangla, String motherName, String motherNameBangla, String dob) {
         NidInfoEntity entity = new NidInfoEntity();
         entity.setNidNumber(nidNumber);
         entity.setFullName(fullName);
@@ -297,8 +352,9 @@ public class NidInfoActivity extends AppCompatActivity {
 
             runOnUiThread(this::showSuccessDialog);
         });
-    }
-    private void saveToDatabase(String nidNumber, String fullName, String nameBangla, String fatherNameBangla, String motherNameBangla, String addressBangla, String dob) {
+    }*/
+
+    private void saveToDatabase(String nidNumber, String fullName, String nameBangla, String fatherNameBangla, String motherNameBangla, String addressBangla, String dob, String txId) {
         NidInfoEntity entity = new NidInfoEntity();
         entity.setNidNumber(nidNumber);
         entity.setFullName(fullName);
@@ -311,6 +367,9 @@ public class NidInfoActivity extends AppCompatActivity {
         entity.setBackImagePath(backImagePath);
         entity.setOcrRawDataFront(frontOcrRawData);
         entity.setOcrRawDataBack(backOcrRawData);
+        entity.setTransactionId(txId);
+        /*entity.setPhotoBase64St(base64);
+        entity.setFaceMatchRequired(isFaceMatchRequired);*/
 
         executor.execute(() -> {
             NidDatabase db = NidDatabase.getDatabase(getApplicationContext());
@@ -339,6 +398,32 @@ public class NidInfoActivity extends AppCompatActivity {
         });
     }
 
+    private void showErrorDialog(String errorCode, String message) {
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.dialog_verification_error, null);
+
+        TextView tvErrorCode = view.findViewById(R.id.tvErrorCode);
+        TextView tvMessage = view.findViewById(R.id.tvMessage);
+
+        tvErrorCode.setText("Error Code: " + errorCode);
+        tvMessage.setText(message);
+
+        new MaterialAlertDialogBuilder(this)
+                .setView(view)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    private void showErrorDialog(boolean status, String errorCode, String message) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Verification Failed")
+                .setIcon(R.drawable.ic_cross_circle)
+                .setMessage("Error Code: " + errorCode + "\n" + message)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
     private void showSuccessDialog() {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.kyc_success_title)
@@ -348,6 +433,60 @@ public class NidInfoActivity extends AppCompatActivity {
                 .setPositiveButton("OK", (dialog, which) -> {
                     dialog.dismiss();
                     finish();
+                })
+                .show();
+    }
+
+    private void showSuccessDialog(String message) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.kyc_success_title)
+                .setMessage(message)
+                .setIcon(R.drawable.ic_check_circle)
+                .setCancelable(false)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss();
+                    finish();
+                })
+                .show();
+    }
+
+    public interface DialogActionListener {
+        void onPositiveClick();
+    }
+
+    private void showStatusDialog(boolean isSuccess, String code, String message, DialogActionListener listener) {
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.dialog_verification_status, null);
+
+        ImageView imgStatus = view.findViewById(R.id.imgStatus);
+        TextView tvTitle = view.findViewById(R.id.tvTitle);
+        TextView tvErrorCode = view.findViewById(R.id.tvErrorCode);
+        TextView tvMessage = view.findViewById(R.id.tvMessage);
+
+        if (isSuccess) {
+            imgStatus.setImageResource(R.drawable.ic_green_check);
+            tvTitle.setText("Verification Successful");
+            tvTitle.setTextColor(getResources().getColor(R.color.kyc_success));
+        } else {
+            imgStatus.setImageResource(R.drawable.ic_cross_circle);
+            tvTitle.setText("Verification Failed");
+            tvTitle.setTextColor(getResources().getColor(R.color.kyc_error));
+        }
+
+        tvErrorCode.setText("Code: " + code);
+        tvMessage.setText(message);
+
+        new MaterialAlertDialogBuilder(this)
+                .setView(view)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss();
+                    if (listener != null) {
+                        listener.onPositiveClick();
+                    }
+                    finish();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
                 })
                 .show();
     }

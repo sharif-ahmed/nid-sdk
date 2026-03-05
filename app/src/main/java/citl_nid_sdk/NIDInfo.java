@@ -2,6 +2,9 @@ package citl_nid_sdk;
 
 import android.graphics.Bitmap;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 public class NIDInfo implements Serializable {
@@ -15,6 +18,33 @@ public class NIDInfo implements Serializable {
     private String motherNameBangla;
     private String addressBangla;
     private String ocrRawData;
+    private OcrData ocrData;
+    private EcValidation ecValidation;
+    private FaceMatchDetail faceMatchDetail;
+
+    public OcrData getOcrData() {
+        return ocrData;
+    }
+
+    public void setOcrData(OcrData ocrData) {
+        this.ocrData = ocrData;
+    }
+
+    public EcValidation getEcValidation() {
+        return ecValidation;
+    }
+
+    public void setEcValidation(EcValidation ecValidation) {
+        this.ecValidation = ecValidation;
+    }
+
+    public FaceMatchDetail getFaceMatchDetail() {
+        return faceMatchDetail;
+    }
+
+    public void setFaceMatchDetail(FaceMatchDetail faceMatchDetail) {
+        this.faceMatchDetail = faceMatchDetail;
+    }
 
     public String getOcrRawData() {
         return ocrRawData;

@@ -44,6 +44,7 @@
             <FrameLayout
                 android:layout_width="80dp"
                 android:layout_height="80dp"
+                android:visibility="gone"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/bg_image_placeholder">
 
@@ -62,6 +63,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-bold"
                 android:text="Matched"
+                android:visibility="gone"
                 android:textColor="@color/kyc_text_primary"
                 android:textSize="24sp" />
 
@@ -73,6 +75,7 @@
                 android:layout_marginBottom="24dp"
                 android:fontFamily="sans-serif"
                 android:gravity="center"
+                android:visibility="gone"
                 android:text="@string/kyc_result_match_desc"
                 android:textColor="@color/kyc_text_hint"
                 android:textSize="14sp" />
@@ -120,6 +123,26 @@
                         android:textSize="16sp"
                         android:textAllCaps="true"
                         android:letterSpacing="0.1"/>
+                    <!-- Match Code -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/kyc_result_code_label"
+                            android:textColor="@color/kyc_text_hint" />
+                        <TextView
+                            android:id="@+id/tvResultCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/kyc_text_primary"
+                            android:text="0.95" />
+                    </LinearLayout>
 
                     <!-- Match Score -->
                     <LinearLayout

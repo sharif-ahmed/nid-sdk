@@ -4,10 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -44,10 +48,10 @@ public class VerificationSummaryActivity extends AppCompatActivity {
     private void setupUI() {
         binding.btnBack.setOnClickListener(v -> onBackPressed());
         binding.btnConfirmVerify.setOnClickListener(v -> {
-            /*if (currentEntity != null) {
+            if (currentEntity != null) {
                 performFaceMatch(currentEntity);
-            }*/
-            ProcessingActivity.start(this);
+            }
+            //ProcessingActivity.start(this);
         });
     }
 
@@ -63,7 +67,7 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                 .setTitle("Final Verification")
                 .setMessage("Performing face matching...")
                 .setCancelable(false);
-        androidx.appcompat.app.AlertDialog dialog = progressDialog.show();
+        AlertDialog dialog = progressDialog.show();
 
         String selfieBase64 = BitmapUtils.toBase64(selfie);
         FaceMatchRequest request = new FaceMatchRequest(
@@ -73,56 +77,99 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                 selfieBase64
         );
 
-        ApiClient.getService(this).matchFace(request).enqueue(new Callback<>() {
+        NidFaceVerificationRequest verificationRequest = new NidFaceVerificationRequest(
+                entity.getNidNumber(),
+                entity.getFullName(),
+                entity.getDateOfBirth(),
+                true,
+                entity.getTransactionId(),
+                selfieBase64
+        );
+
+        String apiKey = CallbackHolder.getInstance().getLicenseKey();
+
+        ApiClient.getService(this).verifyFace(apiKey, verificationRequest).enqueue(new Callback<NidFaceVerificationResponse>() {
             @Override
-            public void onResponse(Call<SdkResponse> call, Response<SdkResponse> response) {
+            public void onResponse(Call<NidFaceVerificationResponse> call, Response<NidFaceVerificationResponse> response) {
                 dialog.dismiss();
+                NidFaceVerificationResponse verificationResponse = response.body();
                 if (response.isSuccessful() && response.body() != null) {
-                    SdkResponse sdkResponse = response.body();
-                    relayResponse(sdkResponse);
+                    if (verificationResponse.getData() != null) {
+                        showStatusDialog(
+                                true,
+                                String.valueOf(verificationResponse.result.getStatusCode()),
+                                verificationResponse.result.getErrorMsg(),
+                                () -> {
+                                    relayResponse(verificationResponse);
+                                }
+                        );
+                    } else {
+                        showStatusDialog(
+                                false,
+                                String.valueOf(verificationResponse.result.getStatusCode()),
+                                verificationResponse.result.getErrorMsg(),
+                                () -> {
+                                    relayResponse(verificationResponse);
+                                }
+                        );
+                    }
                 } else {
-                    showErrorDialog(NIDError.E105, "Face Match API Timeout or error.");
+                    if (response.code() == 401) {
+                        showStatusDialog(
+                                false,
+                                String.valueOf(verificationResponse != null ? verificationResponse.result.getStatusCode() : 401),
+                                verificationResponse != null ? verificationResponse.result.getErrorMsg() : "Unauthorized",
+                                () -> {
+                                    Intent intent = new Intent(VerificationSummaryActivity.this, VerificationStepActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    intent.putExtra("finish", true);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                        );
+                    } else {
+                        showErrorDialog(String.valueOf(response.code()), response.message());
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<SdkResponse> call, Throwable t) {
+            public void onFailure(Call<NidFaceVerificationResponse> call, Throwable t) {
                 dialog.dismiss();
                 showErrorDialog(NIDError.E105, "Face Match API failure: " + t.getMessage());
             }
         });
     }
 
-    private void relayResponse(SdkResponse response) {
-        NIDCallback cb = CallbackHolder.getInstance().getCallback();
-        if (cb != null) {
-            // Check success and pass back
-            boolean match = response.faceMatch != null ? response.faceMatch : false;
-            float score = 0.0f; // Score is not explicitly in SdkResponse but we can add it if needed
-            
-            // Relaying the rich info via the existing callback for now
-            // or mapping to the User's preferred format if we update the interface
-            NIDInfo info = new NIDInfo(response.ocrData != null ? response.ocrData.nidNumber : "", 
-                                     response.ocrData != null ? response.ocrData.nameEnglish : "", 
-                                     response.ocrData != null ? response.ocrData.dateOfBirth : "");
-            
-            if (response.ocrData != null) {
-                info.setNameBangla(response.ocrData.nameBangla);
-                info.setFatherName(response.ocrData.fatherName);
-                info.setMotherName(response.ocrData.motherName);
-                info.setAddressBangla(response.ocrData.address);
+    private void relayResponse(NidFaceVerificationResponse response) {
+        try {
+            NIDCallback cb = CallbackHolder.getInstance().getCallback();
+            if (cb != null) {
+                NIDInfo info = new NIDInfo(
+                        response.getData().getOcrData() != null ? response.getData().getOcrData().getNidNumber() : "",
+                        response.getData().getOcrData() != null ? response.getData().getOcrData().getNameEnglish() : "",
+                        response.getData().getOcrData() != null ? response.getData().getOcrData().getDateOfBirth() : ""
+                );
+
+                if (response.getData().getOcrData() != null) {
+                    /*info.setNameBangla(response.getData().getOcrData().getNameBangla());
+                    info.setFatherName(response.getData().getOcrData().getFatherName());
+                    info.setMotherName(response.getData().getOcrData().getMotherName());
+                    info.setAddressBangla(response.getData().getOcrData().getAddress());*/
+                    info.setOcrData(response.getData().getOcrData());
+                }
+                if (response.getData().getEcValidation() != null) {
+                    info.setEcValidation(response.getData().getEcValidation());
+                }
+                if (response.getData().getFaceMatchDetail() != null) {
+                    info.setFaceMatchDetail(response.getData().getFaceMatchDetail());
+                }
+                cb.onSuccess(info);
+                ResultActivity.start(this, info);
+                finish();
             }
-
-            cb.onSuccess(match, score, info);
-        }
-
-        // Show Result screen or finish
-        if ("SUCCESS".equalsIgnoreCase(response.status)) {
-            NIDInfo finalInfo = new NIDInfo(response.ocrData.nidNumber, response.ocrData.nameEnglish, response.ocrData.dateOfBirth);
-            ResultActivity.start(this, response.faceMatch != null ? response.faceMatch : false, 0.0f, finalInfo);
-            finish();
-        } else {
-            showErrorDialog(response.errorCode != null ? response.errorCode : NIDError.E500, response.message);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -131,6 +178,19 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                 .setTitle("Verification Error")
                 .setMessage("Error Code: " + errorCode + "\n" + message)
                 .setPositiveButton("OK", null)
+                .show();
+    }
+
+    private void showSuccessDialog(String message) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.kyc_success_title)
+                .setMessage(message)
+                .setIcon(R.drawable.ic_check_circle)
+                .setCancelable(false)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss();
+                    finish();
+                })
                 .show();
     }
 
@@ -177,5 +237,42 @@ public class VerificationSummaryActivity extends AppCompatActivity {
         super.onDestroy();
         executor.shutdown();
         binding = null;
+    }
+
+    private void showStatusDialog(boolean isSuccess, String code, String message, NidInfoActivity.DialogActionListener listener) {
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.dialog_verification_status, null);
+
+        ImageView imgStatus = view.findViewById(R.id.imgStatus);
+        TextView tvTitle = view.findViewById(R.id.tvTitle);
+        TextView tvErrorCode = view.findViewById(R.id.tvErrorCode);
+        TextView tvMessage = view.findViewById(R.id.tvMessage);
+
+        if (isSuccess) {
+            imgStatus.setImageResource(R.drawable.ic_green_check);
+            tvTitle.setText("Verification Successful");
+            tvTitle.setTextColor(getResources().getColor(R.color.kyc_success));
+        } else {
+            imgStatus.setImageResource(R.drawable.ic_cross_circle);
+            tvTitle.setText("Verification Failed");
+            tvTitle.setTextColor(getResources().getColor(R.color.kyc_error));
+        }
+
+        tvErrorCode.setText("Code: " + code);
+        tvMessage.setText(message);
+
+        new MaterialAlertDialogBuilder(this)
+                .setView(view)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss();
+                    if (listener != null) {
+                        listener.onPositiveClick();
+                    }
+                    finish();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                })
+                .show();
     }
 }

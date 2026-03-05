@@ -277,7 +277,7 @@ public class ProcessingActivity extends AppCompatActivity {
             final Object lock = new Object();
 
             // publishProgress replacement
-            mainHandler.post(() -> statusText.setText(getString(R.string.nid_processing_ocr)));
+            /*mainHandler.post(() -> statusText.setText(getString(R.string.nid_processing_ocr)));
             NIDOCRProcessor ocr = new NIDOCRProcessor(ProcessingActivity.this);
             ocr.process(nid, new NIDOCRProcessor.Callback() {
                 @Override
@@ -285,7 +285,7 @@ public class ProcessingActivity extends AppCompatActivity {
                     resultHolder.nidInfo = info;
                     try {
                         mainHandler.post(() -> statusText.setText(getString(R.string.nid_processing_face_match)));
-                    /*
+                    *//*
                     FaceNet faceNet =
                             new FaceNet(ProcessingActivity.this);
 
@@ -303,7 +303,7 @@ public class ProcessingActivity extends AppCompatActivity {
                     resultHolder.matchScore = score;
 
                     resultHolder.match = score > 0.8f;
-                    */
+                    *//*
 
                         resultHolder.success = true;
 
@@ -321,7 +321,7 @@ public class ProcessingActivity extends AppCompatActivity {
                         lock.notify();
                     }
                 }
-            });
+            });*/
             synchronized (lock) {
                 try {
                     lock.wait(30000);
@@ -346,13 +346,11 @@ public class ProcessingActivity extends AppCompatActivity {
                 executor.execute(() -> db.nidInfoDao().deleteAll());
                 ResultActivity.start(
                         ProcessingActivity.this,
-                        resultHolder.match,
-                        resultHolder.matchScore,
                         resultHolder.nidInfo
                 );
 
                 // call your server
-                //sendToServer(resultHolder);
+                sendToServer(resultHolder);
 
             });
 
@@ -427,8 +425,10 @@ public class ProcessingActivity extends AppCompatActivity {
                         return;
                     }
                     NidVerifyResponse resp = response.body();
-                    ResultActivity.start(ProcessingActivity.this, resp.match,
-                            resp.score, result.nidInfo);
+                    ResultActivity.start(
+                            ProcessingActivity.this,
+                            result.nidInfo
+                    );
                     finish();
                 }
 

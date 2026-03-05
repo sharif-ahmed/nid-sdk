@@ -9,10 +9,19 @@ public interface NidApiService {
     @POST("nid/verify")
     Call<NidVerifyResponse> verify(@Body NidVerifyRequest request);
 
-    @POST("nid/ec-validate")
-    Call<SdkResponse> validateEC(@Body EcRequest request);
+    /*
+    * SDK API
+    * */
+    @POST("api/nid-face-verification")
+    Call<NidEcVerifyResponse> validateEC(
+            @retrofit2.http.Header("x-api-key") String apiKey,
+            @Body NidECVerifyRequest request
+    );
 
-    @POST("nid/face-match")
-    Call<SdkResponse> matchFace(@Body FaceMatchRequest request);
+    @POST("api/nid-face-verification")
+    Call<NidFaceVerificationResponse> verifyFace(
+            @retrofit2.http.Header("x-api-key") String apiKey,
+            @Body NidFaceVerificationRequest request
+    );
 }
 

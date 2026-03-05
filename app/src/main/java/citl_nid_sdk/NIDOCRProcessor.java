@@ -2,6 +2,7 @@ package citl_nid_sdk;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -15,6 +16,9 @@ import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import citl_nid_sdk.parser.NidParserEngine;
+import citl_nid_sdk.parser.models.NidData;
 
 public class NIDOCRProcessor {
 
@@ -40,42 +44,48 @@ public class NIDOCRProcessor {
                     new DevanagariTextRecognizerOptions.Builder().build());
 
             Task<Text> task = recognizer.process(image);
-            task.addOnSuccessListener(new OnSuccessListener<Text>() {
-                @Override
-                public void onSuccess(Text text) {
-                    String fullText = text.getText();
-                    /*String nidNumber = extractNid(fullText);
-                    String dob = extractDob(fullText);
-                    String name = extractName(fullText);*/
-                    String textNorm = BangladeshNidParser.normalize(fullText);
-                    String nidNumber = BangladeshNidParser.extractNid(textNorm);
-                    String dob = BangladeshNidParser.extractDOB(textNorm);
-                    String name = BangladeshNidParser.extractName(textNorm);
-                    String nameBangla = BangladeshNidParser.extractBanglaName(textNorm);
-                    String fatherName = BangladeshNidParser.extractFatherName(textNorm);
-                    String fatherNameBangla = BangladeshNidParser.extractBanglaFatherName(textNorm);
-                    String motherName = BangladeshNidParser.extractMotherName(textNorm);
-                    //String motherNameBangla = BangladeshNidParser.extractBanglaMotherName(textNorm);
-                    String motherNameBangla = BangladeshNIDParse.extractMotherName(fullText);
-                    String addressBangla = BangladeshNidParser.extractBanglaAddress(textNorm);
+            task.addOnSuccessListener(text -> {
+                String fullText = text.getText();
+                NidData nidData = NidParserEngine.parse(fullText);
+                Log.d("NIDOCRProcessor", nidData.toString());
+                /*String nidNumber = extractNid(fullText);
+                String dob = extractDob(fullText);
+                String name = extractName(fullText);*/
+                String textNorm = BangladeshNidParser.normalize(fullText);
+                //String nidNumber = BangladeshNidParser.extractNid(textNorm);
+                //String nidNumber = NidDocumentParser.parse(fullText).nid_number;
+                String nidNumber = nidData.getNidNumber();
+                //String dob = BangladeshNidParser.extractDOB(textNorm);
+                //String dob = NidDocumentParser.parse(fullText).date_of_birth;
+                String dob = nidData.getDateOfBirth();
+                //String name = BangladeshNidParser.extractName(textNorm);
+                //String name = NidDocumentParser.parse(fullText).name_en;
+                String name = nidData.getNameEn();
+                //String nameBangla = BangladeshNidParser.extractBanglaName(textNorm);
+                //String nameBangla = NidDocumentParser.parse(fullText).name_bn;
+                String nameBangla = nidData.getNameBn();
+                //String fatherName = BangladeshNidParser.extractFatherName(textNorm);
+                //String fatherNameBangla = BangladeshNidParser.extractBanglaFatherName(textNorm);
+                //String fatherNameBangla = NidDocumentParser.parse(fullText).father_name;
+                String fatherNameBangla = nidData.getFatherName();
+                //String motherName = BangladeshNidParser.extractMotherName(textNorm);
+                //String motherNameBangla = BangladeshNidParser.extractBanglaMotherName(textNorm);
+                //String motherNameBangla = BangladeshNIDParse.extractMotherName(fullText);
+                //String motherNameBangla = NidDocumentParser.parse(fullText).mother_name;
+                String motherNameBangla = nidData.getMotherName();
+                String addressBangla = BangladeshNidParser.extractBanglaAddress(textNorm);
 
-                    NIDInfo info = new NIDInfo(nidNumber, name, dob);
-                    info.setNameBangla(nameBangla);
-                    info.setFatherName(fatherName);
-                    info.setFatherNameBangla(fatherNameBangla);
-                    info.setMotherName(motherName);
-                    info.setMotherNameBangla(motherNameBangla);
-                    info.setAddressBangla(addressBangla);
-                    info.setNidFrontImage(nidBitmap);
-                    info.setOcrRawData(fullText);
-                    callback.onSuccess(info);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    callback.onError(new Exception(NIDError.E100 + ": " + e.getMessage()));
-                }
-            });
+                NIDInfo info = new NIDInfo(nidNumber, name, dob);
+                info.setNameBangla(nameBangla);
+                //info.setFatherName(fatherName);
+                info.setFatherNameBangla(fatherNameBangla);
+                //info.setMotherName(motherName);
+                info.setMotherNameBangla(motherNameBangla);
+                info.setAddressBangla(addressBangla);
+                info.setNidFrontImage(nidBitmap);
+                info.setOcrRawData(fullText);
+                callback.onSuccess(info);
+            }).addOnFailureListener(e -> callback.onError(new Exception(NIDError.E100 + ": " + e.getMessage())));
 
         } catch (Exception e) {
             callback.onError(e);

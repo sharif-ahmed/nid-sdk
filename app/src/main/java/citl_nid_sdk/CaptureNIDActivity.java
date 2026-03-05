@@ -344,10 +344,12 @@ public class CaptureNIDActivity extends AppCompatActivity {
         options.setShowCropGrid(false);
         options.setHideBottomControls(false);
         options.setFreeStyleCropEnabled(false);
+        // Optional: auto-fit image to crop bounds
+        options.setImageToCropBoundsAnimDuration(1);
 
         UCrop uCrop = UCrop.of(android.net.Uri.fromFile(new File(imagePath)), android.net.Uri.fromFile(destinationFile))
                 //.withAspectRatio(1585, 1000) // ID card aspect ratio
-                .withAspectRatio(1.58f,1f)
+                .withAspectRatio(16,9)
                 .withOptions(options);
 
         uCropLauncher.launch(uCrop.getIntent(this));

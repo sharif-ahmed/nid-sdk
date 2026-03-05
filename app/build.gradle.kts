@@ -17,24 +17,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
+
     buildTypes {
+        debug {
+            buildConfigField("String", "NID_API_KEY", "\"your_debug_api_key_here\"")
+            buildConfigField("String", "BASE_URL", "\"https://esign.digitalsignature.com.bd:7000/nidverify/\"")
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField("String", "NID_API_KEY", "\"your_release_api_key_here\"")
+            buildConfigField("String", "BASE_URL", "\"https://esign.digitalsignature.com.bd:7000/nidverify/\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        viewBinding = true
     }
 }
 

@@ -143,6 +143,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
+                            android:visibility="gone"
                             android:orientation="horizontal">
 
                             <ImageView
@@ -168,6 +169,7 @@
                             android:layout_height="1dp"
                             android:layout_marginTop="20dp"
                             android:layout_marginBottom="20dp"
+                            android:visibility="gone"
                             android:background="#1A000000" />
 
                         <LinearLayout
@@ -220,12 +222,31 @@
                                     android:textColor="@color/kyc_text_hint"
                                     android:textSize="12sp" />
 
+
                                 <TextView
                                     android:id="@+id/tvResultNid"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="sans-serif-medium"
                                     android:text="1234567890"
+                                    android:textColor="@color/kyc_text_primary"
+                                    android:textSize="16sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="12dp"
+                                    android:text="Date Of Birth"
+                                    android:textColor="@color/kyc_text_hint"
+                                    android:textSize="12sp" />
+
+
+                                <TextView
+                                    android:id="@+id/tvResultDob"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:text="12-12-1970"
                                     android:textColor="@color/kyc_text_primary"
                                     android:textSize="16sp" />
                             </LinearLayout>

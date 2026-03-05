@@ -22,7 +22,7 @@
     <string name="nid_result_match">Match</string>
     <string name="nid_result_not_match">Not Match</string>
     <string name="nid_result_details">NID: %1$s\nName: %2$s\nDOB: %3$s\nScore: %4$s</string>
-    <string name="nid_done">Done</string>
+    <string name="nid_done">Go Home</string>
 
     <!-- KYC Verification Strings -->
     <string name="kyc_verification_title">Identity Verification</string>
@@ -75,6 +75,7 @@
     <string name="kyc_confirm_verify">Confirm &amp; Verify</string>
     <string name="kyc_selfie_label">Captured Selfie</string>
     <string name="kyc_selfie_captured">Selfie captured successfully!</string>
+    <string name="kyc_result_code_label">Match Code</string>
     <string name="kyc_result_score_label">Match Score</string>
     <string name="kyc_result_status_label">Verification Status</string>
     <string name="kyc_result_details_title">Identity Details</string>

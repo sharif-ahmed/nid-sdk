@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 import citl_nid_sdk.databinding.ActivityVerificationBinding;
 
-public class VerificationActivity extends AppCompatActivity {
+public class VerificationStepActivity extends AppCompatActivity {
 
     private ActivityVerificationBinding binding;
     private boolean isNidInfoCompleted = false;
@@ -79,7 +79,7 @@ public class VerificationActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         binding.cardNidInfo.setOnClickListener(v -> {
-            Intent intent = new Intent(VerificationActivity.this, NidInfoActivity.class);
+            Intent intent = new Intent(VerificationStepActivity.this, NidInfoActivity.class);
             startActivity(intent);
         });
 

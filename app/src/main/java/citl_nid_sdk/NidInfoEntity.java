@@ -3,6 +3,9 @@ package citl_nid_sdk;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 @Entity(tableName = "nid_info")
 public class NidInfoEntity {
 
@@ -24,6 +27,34 @@ public class NidInfoEntity {
 
     private String ocrRawDataFront;
     private String ocrRawDataBack;
+    private boolean isFaceMatchRequired;
+
+    public boolean isFaceMatchRequired() {
+        return isFaceMatchRequired;
+    }
+
+    public void setFaceMatchRequired(boolean faceMatchRequired) {
+        isFaceMatchRequired = faceMatchRequired;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public String getPhotoBase64St() {
+        return photoBase64St;
+    }
+
+    public void setPhotoBase64St(String photoBase64St) {
+        this.photoBase64St = photoBase64St;
+    }
+
+    private String transactionId;
+    private String photoBase64St;
 
     public String getOcrRawDataFront() {
         return ocrRawDataFront;
@@ -74,4 +105,6 @@ public class NidInfoEntity {
     public void setFrontImagePath(String frontImagePath) { this.frontImagePath = frontImagePath; }
     public void setBackImagePath(String backImagePath) { this.backImagePath = backImagePath; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+
+
 }

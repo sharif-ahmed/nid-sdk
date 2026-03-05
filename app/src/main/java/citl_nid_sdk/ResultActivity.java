@@ -3,14 +3,12 @@ package citl_nid_sdk;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
-import com.google.android.gms.common.api.internal.BaseImplementation;
 
 import java.util.concurrent.Executors;
 
@@ -21,16 +19,18 @@ public class ResultActivity extends AppCompatActivity {
     private static final String EXTRA_NID_NUMBER = "nid";
     private static final String EXTRA_NAME = "name";
     private static final String EXTRA_DOB = "dob";
+    private static final String EXTRA_NID_INFO = "nid_info";
 
     private citl_nid_sdk.databinding.ActivityResultBinding binding;
 
-    public static void start(Context context, boolean match, float score, NIDInfo info) {
+    public static void start(Context context, NIDInfo info) {
         Intent intent = new Intent(context, ResultActivity.class);
-        intent.putExtra(EXTRA_MATCH, match);
-        intent.putExtra(EXTRA_SCORE, score);
+        //intent.putExtra(EXTRA_MATCH, match);
+        //intent.putExtra(EXTRA_SCORE, score);
         intent.putExtra(EXTRA_NID_NUMBER, info.getNidNumber());
         intent.putExtra(EXTRA_NAME, info.getName());
         intent.putExtra(EXTRA_DOB, info.getDateOfBirth());
+        intent.putExtra(EXTRA_NID_INFO, info);
         context.startActivity(intent);
     }
 
@@ -45,13 +45,26 @@ public class ResultActivity extends AppCompatActivity {
         String nid = getIntent().getStringExtra(EXTRA_NID_NUMBER);
         String name = getIntent().getStringExtra(EXTRA_NAME);
         String dob = getIntent().getStringExtra(EXTRA_DOB);
+        NIDInfo nidInfo = (NIDInfo) getIntent().getSerializableExtra(EXTRA_NID_INFO);
 
-        populateUI(match, score, nid, name, dob);
+        populateUI(nidInfo);
+
+        getOnBackPressedDispatcher().addCallback(
+                this,
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        Toast.makeText(getApplicationContext(),
+                                "Back disabled during verification",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-    private void populateUI(boolean match, float score, String nid, String name, String dob) {
+    private void populateUI(NIDInfo nidInfo) {
         // Icon and Colors
-        if (match) {
+        int match = Integer.parseInt(nidInfo.getFaceMatchDetail().getFaceMatchCode());
+        if (match == 1) {
             binding.imgStatusIcon.setImageResource(R.drawable.ic_check_circle);
             binding.imgStatusIcon.setColorFilter(ContextCompat.getColor(this, R.color.kyc_primary));
             binding.statusText.setText(R.string.nid_result_match);
@@ -71,16 +84,18 @@ public class ResultActivity extends AppCompatActivity {
         }
 
         // Details
-        binding.tvResultScore.setText(String.format("%.3f", score));
-        binding.tvResultName.setText(name);
-        binding.tvResultNid.setText(nid);
-        binding.tvResultDob.setText(dob);
+        //binding.tvResultScore.setText(String.format("%.3f", score));
+        binding.tvResultCode.setText(String.valueOf(nidInfo.getFaceMatchDetail().getFaceMatchCode()));
+        binding.tvResultName.setText(nidInfo.getName());
+        binding.tvResultNid.setText(nidInfo.getNidNumber());
+        binding.tvResultDob.setText(nidInfo.getDateOfBirth());
+        binding.tvResultScore.setText(String.valueOf(nidInfo.getFaceMatchDetail().getFaceMatchScore()));
 
         binding.doneButton.setOnClickListener(v -> {
-            NIDInfo info = new NIDInfo(nid, name, dob);
+            //NIDInfo info = new NIDInfo(nid, name, dob);
             NIDCallback cb = CallbackHolder.getInstance().getCallback();
             if (cb != null) {
-                cb.onSuccess(match, score, info);
+                cb.onSuccess(nidInfo);
             }
             // Clear high-level callback
             CallbackHolder.getInstance().clear();
@@ -90,7 +105,7 @@ public class ResultActivity extends AppCompatActivity {
                 db.nidInfoDao().deleteAll();
             });
             // Return to MainActivity by finishing all SDK activities in the task
-            Intent intent = new Intent(this, VerificationActivity.class);
+            Intent intent = new Intent(this, VerificationStepActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("finish", true);
             startActivity(intent);
