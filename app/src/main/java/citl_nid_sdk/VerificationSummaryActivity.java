@@ -166,6 +166,7 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                 }
                 cb.onSuccess(info);
                 ResultActivity.start(this, info);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                 finish();
             }
         } catch (Exception e) {

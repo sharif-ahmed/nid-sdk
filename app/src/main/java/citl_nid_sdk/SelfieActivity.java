@@ -350,6 +350,8 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                                     // Fix rotation
                                     Bitmap rotatedBitmap = rotateBitmap(bitmap, rotationDegrees);
                                     BitmapHolder.setSelfieBitmap(rotatedBitmap);
+                                    VerificationSummaryActivity.start(SelfieActivity.this);
+                                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                                     finish();
                                 },
                                 e -> {

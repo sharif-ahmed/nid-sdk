@@ -81,7 +81,7 @@ public class OverlayView extends View {
             float ovalWidth = width * 0.7f;
             float ovalHeight = height * 0.5f;
             float left = (width - ovalWidth) / 2;
-            float top = (height - ovalHeight) / 3;
+            float top = (height - ovalHeight) / 4;
             focusRect = new RectF(left, top, left + ovalWidth, top + ovalHeight);
             canvas.drawARGB(0, 0, 0, 0);
 

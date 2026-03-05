@@ -289,7 +289,9 @@ public class NidInfoActivity extends AppCompatActivity {
                                     () -> {
                                         String txId = ecVerifyResponse.getData().getTransactionId();
                                         saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId);
-                                    }
+                                        SelfieActivity.start(NidInfoActivity.this);
+                                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                                        finish();                                    }
                             );
                         } else {
                             showStatusDialog(
@@ -299,7 +301,9 @@ public class NidInfoActivity extends AppCompatActivity {
                                     () -> {
                                         String txId2 = "4c8f6199-1427-4385-9789-81066ea5cd9a";
                                         saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId2);
-                                    }
+                                        SelfieActivity.start(NidInfoActivity.this);
+                                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                                        finish();                                    }
                             );
                         }
                     } else {
@@ -432,6 +436,8 @@ public class NidInfoActivity extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton("OK", (dialog, which) -> {
                     dialog.dismiss();
+                    SelfieActivity.start(this);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                 })
                 .show();
@@ -445,6 +451,8 @@ public class NidInfoActivity extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton("OK", (dialog, which) -> {
                     dialog.dismiss();
+                    SelfieActivity.start(this);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     finish();
                 })
                 .show();

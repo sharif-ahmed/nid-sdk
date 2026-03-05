@@ -81,6 +81,7 @@ public class VerificationStepActivity extends AppCompatActivity {
         binding.cardNidInfo.setOnClickListener(v -> {
             Intent intent = new Intent(VerificationStepActivity.this, NidInfoActivity.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
 
         binding.cardSelfie.setOnClickListener(v -> {
@@ -91,6 +92,7 @@ public class VerificationStepActivity extends AppCompatActivity {
                 return;
             }
             SelfieActivity.start(this);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
 
         binding.cardVerify.setOnClickListener(v -> {
@@ -101,6 +103,7 @@ public class VerificationStepActivity extends AppCompatActivity {
                 return;
             }
             VerificationSummaryActivity.start(this);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
     }
 

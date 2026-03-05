@@ -14,7 +14,8 @@
     <citl_nid_sdk.OverlayView
         android:id="@+id/overlayView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"/>
 
     <!-- Top Instruction -->
     <LinearLayout
@@ -22,8 +23,39 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:padding="8dp"
         android:layout_gravity="top">
+
+        <!-- Top Bar Overlay -->
+        <RelativeLayout
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/nid_background"
+            android:paddingStart="16dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:visibility="gone"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:src="@drawable/abc_ic_ab_back_material"
+                app:tint="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/kyc_selfie_title"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/instructionText"
@@ -49,6 +81,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="8dp"
+        android:layout_marginTop="8dp"
         android:paddingBottom="20dp"
         android:layout_gravity="bottom"
         android:background="#E0000000"

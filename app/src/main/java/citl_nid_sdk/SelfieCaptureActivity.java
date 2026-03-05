@@ -209,13 +209,13 @@ public class SelfieCaptureActivity extends AppCompatActivity {
     private void updateLivenessUI() {
         switch (currentLivenessState) {
             case STATE_BLINK:
-                binding.txtInstruction.setText(R.string.nid_liveness_action_blink);
+                binding.txtInstruction.setText("Blink your eyes");
                 binding.livenessIcon.setImageResource(R.drawable.ic_selfie);
                 binding.livenessProgress.setMax(REQUIRED_BLINKS);
                 binding.livenessProgress.setProgress(blinkCount);
                 break;
             case STATE_SMILE:
-                binding.txtInstruction.setText(R.string.nid_liveness_action_smile);
+                binding.txtInstruction.setText("Smile for selfie");
                 binding.livenessIcon.setImageResource(R.drawable.ic_selfie);
                 binding.livenessProgress.setMax(1);
                 binding.livenessProgress.setProgress(isSmileDetected ? 1 : 0);
@@ -223,7 +223,7 @@ public class SelfieCaptureActivity extends AppCompatActivity {
                 //highlightCheck(binding.step1Check); // Blink step is 1
                 break;
             case STATE_READY:
-                binding.txtInstruction.setText(R.string.nid_liveness_passed);
+                binding.txtInstruction.setText("Capture Selfie");
                 binding.livenessIcon.setImageResource(R.drawable.ic_camera);
                 binding.livenessProgress.setMax(1);
                 binding.livenessProgress.setProgress(1);
