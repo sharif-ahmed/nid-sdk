@@ -1,5 +1,5 @@
 package com.commlink.citl_nid_sdk.ui;
-import citl_nid_sdk.R;
+import com.commlink.citl_nid_sdk.R;
 
 import android.app.Activity;
 import android.content.Context;

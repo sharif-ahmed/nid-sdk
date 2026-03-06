@@ -22,4 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "CITL_NID_SDK"
 include(":app")
- 
+include(":nid_sdk")
