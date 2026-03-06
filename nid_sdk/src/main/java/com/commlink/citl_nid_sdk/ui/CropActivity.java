@@ -1,5 +1,4 @@
 package com.commlink.citl_nid_sdk.ui;
-import com.commlink.citl_nid_sdk.R;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.commlink.citl_nid_sdk.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

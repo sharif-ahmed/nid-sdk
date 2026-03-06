@@ -19,6 +19,6 @@
 # Keep BuildConfig for API settings
 -keep class citl_nid_sdk.**BuildConfig { *; }
 
--keep class com.commlink.citl_nid_sdk.** { *; }
+-keep class com.commlink.nid_sdk_demo.** { *; }
 -keep class org.tensorflow.** { *; }
 -keep class com.google.mlkit.** { *; }

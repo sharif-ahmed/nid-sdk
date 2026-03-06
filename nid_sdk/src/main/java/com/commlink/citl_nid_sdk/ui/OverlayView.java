@@ -1,6 +1,5 @@
 package com.commlink.citl_nid_sdk.ui;
 
-import com.commlink.citl_nid_sdk.R;
 
 import android.content.Context;
 import android.graphics.Canvas;

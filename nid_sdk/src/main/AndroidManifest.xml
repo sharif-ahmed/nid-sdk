@@ -14,74 +14,74 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.CITL_NID_SDK"
         tools:targetApi="31">
-
-        <activity
-            android:name="com.commlink.citl_nid_sdk.ui.MainActivity"
+        <!--android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"-->
+        <!--<activity
+            android:name=".ui.MainActivity"
             android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity>-->
 
         <activity
-            android:name="com.commlink.citl_nid_sdk.ui.CaptureNIDActivity"
+            android:name=".ui.CaptureNIDActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.NIDEnterpriseSDK" />
 
         <activity
-            android:name="com.commlink.citl_nid_sdk.ui.SelfieActivity"
+            android:name=".ui.SelfieActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.NIDEnterpriseSDK" />
 
         <activity
-            android:name="com.commlink.citl_nid_sdk.ui.ProcessingActivity"
+            android:name=".ui.ProcessingActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.NIDEnterpriseSDK" />
 
         <activity
-            android:name="com.commlink.citl_nid_sdk.ui.ResultActivity"
+            android:name=".ui.ResultActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.NIDEnterpriseSDK" />
 
         <activity
-            android:name="com.commlink.citl_nid_sdk.ui.VerificationStepActivity"
+            android:name=".ui.VerificationStepActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.NIDVerification" />
 
         <activity
-            android:name="com.commlink.citl_nid_sdk.ui.VerificationSummaryActivity"
+            android:name=".ui.VerificationSummaryActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.NIDVerification" />
 
         <activity
-            android:name="com.commlink.citl_nid_sdk.ui.NidInfoActivity"
+            android:name=".ui.NidInfoActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.NIDVerification" />
 
         <activity
-            android:name="com.commlink.citl_nid_sdk.ui.SelfieCaptureActivity"
+            android:name=".ui.SelfieCaptureActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.NIDVerification" />
 
         <activity
-            android:name="com.commlink.citl_nid_sdk.ui.CropActivity"
+            android:name=".ui.CropActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.NIDVerification" />

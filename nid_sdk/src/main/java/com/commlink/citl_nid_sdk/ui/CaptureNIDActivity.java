@@ -1,5 +1,4 @@
 package com.commlink.citl_nid_sdk.ui;
-import com.commlink.citl_nid_sdk.R;
 
 import android.app.Activity;
 import android.content.Context;
@@ -35,6 +34,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import android.util.Size;
 
+import com.commlink.citl_nid_sdk.R;
 import com.commlink.citl_nid_sdk.core.NIDCallback;
 import com.commlink.citl_nid_sdk.model.NIDError;
 import com.commlink.citl_nid_sdk.utils.BitmapHolder;

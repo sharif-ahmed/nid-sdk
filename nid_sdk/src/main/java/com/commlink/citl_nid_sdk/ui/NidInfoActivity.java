@@ -1,6 +1,5 @@
 package com.commlink.citl_nid_sdk.ui;
 
-import com.commlink.citl_nid_sdk.R;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -19,7 +18,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.commlink.citl_nid_sdk.R;
 import com.commlink.citl_nid_sdk.core.NIDOCRProcessor;
+import com.commlink.citl_nid_sdk.databinding.ActivityNidInfoBinding;
 import com.commlink.citl_nid_sdk.db.NidDatabase;
 import com.commlink.citl_nid_sdk.model.NIDInfo;
 import com.commlink.citl_nid_sdk.model.NidECVerifyRequest;
@@ -40,7 +41,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import com.commlink.citl_nid_sdk.databinding.ActivityNidInfoBinding;
 
 
 public class NidInfoActivity extends AppCompatActivity {
@@ -250,7 +250,7 @@ public class NidInfoActivity extends AppCompatActivity {
         String formatedDate = DateConverter.convertDate(dob);
         String nid = nidNumber.trim().toString();
         //saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, formatedDate);
-        performECValidation(nid, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, formatedDate, true);
+        performECValidation(nid, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, formatedDate, false);
     }
 
     private void performECValidation(
@@ -306,9 +306,9 @@ public class NidInfoActivity extends AppCompatActivity {
                             );
                         } else {
                             showStatusDialog(
-                                    false,
+                                    true,
                                     String.valueOf(response.code()),
-                                    "Api SUCCESS, But No Data Found For Success Response",
+                                    "Request completed successfully, but no data was found.",
                                     () -> {
                                         String txId2 = "4c8f6199-1427-4385-9789-81066ea5cd9a";
                                         saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId2);

@@ -1,5 +1,4 @@
 package com.commlink.citl_nid_sdk.ui;
-import com.commlink.citl_nid_sdk.R;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.commlink.citl_nid_sdk.R;
 import com.commlink.citl_nid_sdk.core.NIDCallback;
 import com.commlink.citl_nid_sdk.databinding.ActivityResultBinding;
 import com.commlink.citl_nid_sdk.db.NidDatabase;

@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.android.application)
+    //alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     /*
     * use for only project as build library
     * */
-    //alias(libs.plugins.android.library)
+    alias(libs.plugins.android.library)
 }
 
 android {
@@ -12,7 +12,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.commlink.citl_nid_sdk"
+        //applicationId = "com.commlink.citl_nid_sdk"
         minSdk = 24
         targetSdk = 36
 

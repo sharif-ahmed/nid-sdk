@@ -1,5 +1,4 @@
 package com.commlink.citl_nid_sdk.ui;
-import com.commlink.citl_nid_sdk.R;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +6,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.commlink.citl_nid_sdk.R;
+import com.commlink.citl_nid_sdk.databinding.ActivityVerificationBinding;
 import com.commlink.citl_nid_sdk.db.NidDatabase;
 import com.commlink.citl_nid_sdk.utils.BitmapHolder;
 import com.commlink.citl_nid_sdk.utils.CallbackHolder;
@@ -14,7 +15,6 @@ import com.commlink.citl_nid_sdk.utils.CallbackHolder;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.commlink.citl_nid_sdk.databinding.ActivityVerificationBinding;
 
 public class VerificationStepActivity extends AppCompatActivity {
 

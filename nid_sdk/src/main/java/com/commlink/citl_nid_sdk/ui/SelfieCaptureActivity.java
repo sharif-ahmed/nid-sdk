@@ -1,6 +1,5 @@
 package com.commlink.citl_nid_sdk.ui;
 
-import com.commlink.citl_nid_sdk.R;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -23,6 +22,8 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 
+import com.commlink.citl_nid_sdk.R;
+import com.commlink.citl_nid_sdk.databinding.ActivitySelfieCaptureBinding;
 import com.commlink.citl_nid_sdk.utils.BitmapUtilsExt;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
@@ -35,7 +36,6 @@ import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.commlink.citl_nid_sdk.databinding.ActivitySelfieCaptureBinding;
 
 @androidx.annotation.OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)
 public class SelfieCaptureActivity extends AppCompatActivity {

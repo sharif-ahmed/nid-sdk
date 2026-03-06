@@ -1,9 +1,7 @@
-package com.commlink.citl_nid_sdk.network;
-
+package com.commlink.nid_sdk_demo.ui;
 
 import android.content.Context;
 
-import com.commlink.citl_nid_sdk.BuildConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -16,9 +14,8 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ApiClient {
-
-    private static final String BASE_URL = "https://your.api.server/";
+public class TokenApiClient {
+    private static final String BASE_URL = "https://esign.digitalsignature.com.bd:7000/nidverify/";
     private static Retrofit retrofit;
 
     public static Retrofit getClient(Context context) {
@@ -27,12 +24,7 @@ public class ApiClient {
 
             // 1. Logging Interceptor (Debug only)
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            logging.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
-
-            // 2. Certificate Pinning (Replace with actual SHA-256 hashes)
-            /*CertificatePinner certPinner = new CertificatePinner.Builder()
-                    .add("your.api.server", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
-                    .build();*/
+            //logging.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
 
             // 3. Retry Interceptor
             Interceptor retryInterceptor = chain -> {
@@ -58,17 +50,17 @@ public class ApiClient {
                     .addInterceptor(logging)
                     //.addInterceptor(retryInterceptor)
                     //.certificatePinner(certPinner)
-                    .addInterceptor(chain -> {
+                    /*.addInterceptor(chain -> {
                         Request original = chain.request();
                         Request.Builder builder = original.newBuilder()
                                 .header("Accept", "application/json")
                                 .method(original.method(), original.body());
                         return chain.proceed(builder.build());
-                    })
+                    })*/
                     .build();
 
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BuildConfig.BASE_URL)
+                    .baseUrl(BASE_URL)
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
@@ -76,8 +68,7 @@ public class ApiClient {
         return retrofit;
     }
 
-    public static NidApiService getService(Context context) {
-        return getClient(context).create(NidApiService.class);
+    public static TokenApiService getTokenService(Context context) {
+        return getClient(context).create(TokenApiService.class);
     }
 }
-

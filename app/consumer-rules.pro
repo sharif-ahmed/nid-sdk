@@ -13,11 +13,11 @@
 -keep class sun.misc.**Unsafe { *; }
 
 # CITL NID SDK Models - Keep all request/response models in their sub-packages
--keep class com.commlink.citl_nid_sdk.model.** { *; }
--keep class com.commlink.citl_nid_sdk.core.** { *; }
+-keep class com.commlink.nid_sdk_demo.model.** { *; }
+-keep class com.commlink.nid_sdk_demo.core.** { *; }
 
 # Keep Callback interface
--keep class com.commlink.citl_nid_sdk.core.NIDCallback { *; }
+-keep class com.commlink.nid_sdk_demo.core.NIDCallback { *; }
 
 # Keep BuildConfig for API settings (if needed by consumer)
--keep class com.commlink.citl_nid_sdk.BuildConfig.* { *; }
+-keep class com.commlink.nid_sdk_demo.BuildConfig.* { *; }

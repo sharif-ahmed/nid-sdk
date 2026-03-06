@@ -3,13 +3,13 @@ package com.commlink.citl_nid_sdk.db;
 
 import android.content.Context;
 
+import com.commlink.citl_nid_sdk.BuildConfig;
 import com.commlink.citl_nid_sdk.model.NidFaceVerificationRequest;
 import com.commlink.citl_nid_sdk.model.NidFaceVerificationResponse;
 import com.commlink.citl_nid_sdk.model.Result;
 import com.commlink.citl_nid_sdk.network.ApiClient;
 import com.commlink.citl_nid_sdk.network.NidApiService;
 
-import com.commlink.citl_nid_sdk.BuildConfig;
 
 /**
  * Repository for handling NID related API calls.

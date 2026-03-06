@@ -30,6 +30,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
+import com.commlink.citl_nid_sdk.R;
 import com.commlink.citl_nid_sdk.core.LivenessDetector;
 import com.commlink.citl_nid_sdk.core.NIDCallback;
 import com.commlink.citl_nid_sdk.model.NIDError;
@@ -44,7 +45,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.commlink.citl_nid_sdk.R;
 
 public class SelfieActivity extends AppCompatActivity implements LivenessDetector.ActionProgressCallback {
 

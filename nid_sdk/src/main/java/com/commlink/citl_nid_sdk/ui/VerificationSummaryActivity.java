@@ -1,5 +1,4 @@
 package com.commlink.citl_nid_sdk.ui;
-import com.commlink.citl_nid_sdk.R;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.commlink.citl_nid_sdk.R;
 import com.commlink.citl_nid_sdk.core.NIDCallback;
+import com.commlink.citl_nid_sdk.databinding.ActivityVerificationSummaryBinding;
 import com.commlink.citl_nid_sdk.db.NidDatabase;
 import com.commlink.citl_nid_sdk.model.FaceMatchRequest;
 import com.commlink.citl_nid_sdk.model.NIDError;
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.commlink.citl_nid_sdk.databinding.ActivityVerificationSummaryBinding;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -111,19 +111,15 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                         showStatusDialog(
                                 true,
                                 String.valueOf(verificationResponse.result.getStatusCode()),
-                                verificationResponse.result.getErrorMsg(),
-                                () -> {
-                                    relayResponse(verificationResponse);
-                                }
+                                "Face verification API called successfully. Press OK to view the result",
+                                () -> relayResponse(verificationResponse)
                         );
                     } else {
                         showStatusDialog(
-                                false,
+                                true,
                                 String.valueOf(verificationResponse.result.getStatusCode()),
-                                verificationResponse.result.getErrorMsg(),
-                                () -> {
-                                    relayResponse(verificationResponse);
-                                }
+                                "Face verification api successful, but no data found.",
+                                () -> relayResponse(verificationResponse)
                         );
                     }
                 } else {
