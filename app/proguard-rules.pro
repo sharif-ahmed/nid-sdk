@@ -17,7 +17,7 @@
 -keep class citl_nid_sdk.**NidDocumentParser.NidData { *; }
 
 # Keep BuildConfig for API settings
--keep class citl_nid_sdk.**BuildConfig { *; }
+#-keep class citl_nid_sdk.**BuildConfig { *; }
 
 -keep class com.commlink.nid_sdk_demo.** { *; }
 -keep class org.tensorflow.** { *; }

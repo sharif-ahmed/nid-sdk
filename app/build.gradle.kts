@@ -25,16 +25,21 @@ android {
         buildConfig = true
     }
 
+    compileOptions {
+        sourceCompatibility =  JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
 
     buildTypes {
         debug {
-            buildConfigField("String", "NID_API_KEY", "\"your_debug_api_key_here\"")
-            buildConfigField("String", "BASE_URL", "\"https://esign.digitalsignature.com.bd:7000/nidverify/\"")
         }
         release {
             isMinifyEnabled = false
-            buildConfigField("String", "NID_API_KEY", "\"your_release_api_key_here\"")
-            buildConfigField("String", "BASE_URL", "\"https://esign.digitalsignature.com.bd:7000/nidverify/\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
