@@ -1,3 +1,6 @@
+import java.util.Date
+import java.text.SimpleDateFormat
+
 plugins {
     //alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -14,7 +17,7 @@ android {
     defaultConfig {
         //applicationId = "com.commlink.citl_nid_sdk"
         minSdk = 24
-        targetSdk = 36
+        testOptions.targetSdk = 36
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //consumerProguardFiles("consumer-rules.pro")
@@ -56,13 +59,18 @@ android {
 
 // ⚡ Put it HERE, outside android { } block
 // ⚡ Kotlin DSL way to rename AAR
-// Rename the AAR output
-/*tasks.named<com.android.build.gradle.tasks.BundleAar>("assembleRelease") {
-    archiveFileName.set("citl-nid-sdk-release.aar")
+// Rename the AAR output with version and dynamic date
+//#./gradlew :nid_sdk:assembleRelease
+val sdkVersion = "1.0.0"
+val buildDate = SimpleDateFormat("yyyy_MM_dd").format(Date())
+
+tasks.withType<com.android.build.gradle.tasks.BundleAar>().configureEach {
+    if (name == "bundleReleaseAar") {
+        archiveFileName.set("citl-nid-sdk-v$sdkVersion-$buildDate-release.aar")
+    } else if (name == "bundleDebugAar") {
+        archiveFileName.set("citl-nid-sdk-v$sdkVersion-$buildDate-debug.aar")
+    }
 }
-tasks.named<com.android.build.gradle.tasks.BundleAar>("ssembleDebugAar") {
-    archiveFileName.set("citl-nid-sdk-debug.aar")
-}*/
 
 dependencies {
     implementation(libs.androidx.core.ktx)

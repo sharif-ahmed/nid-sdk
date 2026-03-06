@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.commlink.citl_nid_sdk"
+    namespace = "com.commlink.nid_sdk_demo"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.commlink.citl_nid_sdk"
+        applicationId = "com.commlink.nid_sdk_demo"
         minSdk = 24
         targetSdk = 36
 
@@ -39,7 +39,8 @@ android {
         debug {
         }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -84,5 +85,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(project(":nid_sdk"))
+    //implementation(project(":nid_sdk"))
+    implementation(files("libs/nid_sdk-release.aar"))
 }

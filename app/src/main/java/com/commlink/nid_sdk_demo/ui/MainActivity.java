@@ -1,6 +1,5 @@
 package com.commlink.nid_sdk_demo.ui;
 
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -9,12 +8,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.commlink.citl_nid_sdk.NIDEnterpriseSDK;
-import com.commlink.citl_nid_sdk.R;
 import com.commlink.citl_nid_sdk.core.NIDCallback;
-import com.commlink.citl_nid_sdk.databinding.ActivityMainBinding;
 import com.commlink.citl_nid_sdk.model.NIDError;
 import com.commlink.citl_nid_sdk.model.NIDInfo;
 import com.commlink.citl_nid_sdk.utils.BitmapHolder;
+import com.commlink.nid_sdk_demo.R;
+import com.commlink.nid_sdk_demo.databinding.ActivityMainBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import retrofit2.Call;
@@ -40,10 +39,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         binding.startVerificationButton.setOnClickListener(v -> {
-            //startVerification();
+            // startVerification();
             String clientId = "276893700486-actcrpoiu5vsjq792ond2f7dqg8fe5kg.apps.ecipher.co";
             String clientSecret = "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";
-            tokenRequest(clientId,clientSecret);
+            tokenRequest(clientId, clientSecret);
         });
 
         binding.btnReset.setOnClickListener(v -> {
@@ -61,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
         NIDEnterpriseSDK.startVerification(this, apiKey, new NIDCallback() {
             @Override
             public void onSuccess(NIDInfo nidInfo) {
-                //android.util.Log.d("MainActivity", "onSuccess: match=" + match + ", score=" + score);
+                // android.util.Log.d("MainActivity", "onSuccess: match=" + match + ", score=" +
+                // score);
                 runOnUiThread(() -> showResult(true, 5.0f, nidInfo));
             }
 
@@ -118,8 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void tokenRequest(
             String clientId,
-            String clientSecret
-    ) {
+            String clientSecret) {
         // Show progress UI or dialog
         MaterialAlertDialogBuilder progressDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("Token")
@@ -127,11 +126,10 @@ public class MainActivity extends AppCompatActivity {
                 .setCancelable(false);
         androidx.appcompat.app.AlertDialog dialog = progressDialog.show();
 
-        //EcRequest request = new EcRequest(nidNumber, dob, fullName, fullOcrData);
+        // EcRequest request = new EcRequest(nidNumber, dob, fullName, fullOcrData);
         TokenRequest request = new TokenRequest(
                 clientId,
-                clientSecret
-        );
+                clientSecret);
 
         TokenApiClient.getTokenService(this).getApiToken(request).enqueue(new Callback<TokenResponse>() {
             @Override
@@ -163,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                     dialog.dismiss();
                     dialog.cancel();
                     startVerification(apiKey);
-                    //finish();
+                    // finish();
                 })
                 .show();
     }
@@ -176,4 +174,3 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 }
-

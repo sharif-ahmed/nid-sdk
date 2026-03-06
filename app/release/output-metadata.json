@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.commlink.citl_nid_sdk",
+  "applicationId": "com.commlink.nid_sdk_demo",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 1,
-      "versionName": "1.0",
+      "versionCode": -1,
+      "versionName": "",
       "outputFile": "app-release.apk"
     }
   ],
