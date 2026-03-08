@@ -86,5 +86,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(project(":nid_sdk"))
-   //implementation(files("libs/nid_sdk-release.aar"))
+    //implementation(files("libs/citl-nid-sdk-v1.0.0-release.aar"))
 }

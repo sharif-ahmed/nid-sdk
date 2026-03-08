@@ -132,13 +132,13 @@ public class BangladeshNidParser {
             if (line.equalsIgnoreCase("Name") || line.contains("Name") || line.contains("নাম")) {
                 if (i + 1 < lines.length) {
                     String nameLine = lines[i + 1].trim();
-                    if (nameLine.matches("[A-Z ]{3,}")) return nameLine;
+                    if (nameLine.matches("[A-Z. ]{3,}")) return nameLine;
                 }
             }
         }
         for (String line : lines) {
             line = line.trim();
-            if (line.matches("[A-Z ]{5,}")
+            if (line.matches("[A-Z. ]{5,}")
                     && !line.contains("GOVERNMENT")
                     && !line.contains("NATIONAL")
                     && !line.contains("REPUBLIC")) {
@@ -561,12 +561,27 @@ public class BangladeshNidParser {
         return stripEnglish(result);
     }
 
-    private static String stripEnglish(String input) {
+    private static String stripEnglishOld(String input) {
         if (input == null)
             return "";
         // Remove English alphabets (A-Z, a-z)
         // Keep Bangla, numbers, and common punctuation (, - / .)
         return input.replaceAll("[A-Za-z]", "").replaceAll("\\s+", " ").trim();
+    }
+
+    private static String stripEnglish(String input) {
+        /*if (input == null)
+            return "";
+
+        return input.replaceAll("[^\\u0980-\\u09FF\\s]", "")
+                .replaceAll("\\s+", " ")
+                .trim();*/
+        if (input == null) return "";
+        input = input.replaceAll("<+", " ");
+        return input
+                .replaceAll("[^\\u0980-\\u09FF\\u09E6-\\u09EF\\s,./:;-]", "")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
     public static String cleanNid(String input) {

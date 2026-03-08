@@ -10,15 +10,14 @@
 -keep class sun.misc.**Unsafe { *; }
 
 # CITL NID SDK Models - Keep all request/response models
--keep class citl_nid_sdk.**Request { *; }
--keep class citl_nid_sdk.**Response { *; }
--keep class citl_nid_sdk.**Response$* { *; }
--keep class citl_nid_sdk.Result.* { *; }
--keep class citl_nid_sdk.**NidDocumentParser.NidData { *; }
+-keep class com.commlink.citl_nid_sdk.model.** { *; }
+-keep class com.commlink.citl_nid_sdk.network.** { *; }
+-keep class com.commlink.citl_nid_sdk.utils.CallbackHolder { *; }
+-keep class com.commlink.citl_nid_sdk.ui.NidInfoActivity { *; }
 
 # Keep BuildConfig for API settings
-#-keep class citl_nid_sdk.**BuildConfig { *; }
+-keep class com.commlink.citl_nid_sdk.BuildConfig { *; }
 
--keep class com.commlink.nid_sdk_demo.** { *; }
+# External Libraries
 -keep class org.tensorflow.** { *; }
 -keep class com.google.mlkit.** { *; }

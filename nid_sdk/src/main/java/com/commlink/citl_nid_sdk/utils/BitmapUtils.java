@@ -73,4 +73,19 @@ public class BitmapUtils {
 
         return Bitmap.createBitmap(bitmap, left, top, width, height);
     }
+
+    private Bitmap centerCrop(Bitmap bitmap, float cropPercent) {
+        if (bitmap == null || bitmap.isRecycled()) return null;
+
+        int bmpWidth = bitmap.getWidth();
+        int bmpHeight = bitmap.getHeight();
+
+        int cropWidth = (int) (bmpWidth * cropPercent);
+        int cropHeight = (int) (bmpHeight * cropPercent);
+
+        int x = (bmpWidth - cropWidth) / 2;
+        int y = (bmpHeight - cropHeight) / 2;
+
+        return Bitmap.createBitmap(bitmap, x, y, cropWidth, cropHeight);
+    }
 }
