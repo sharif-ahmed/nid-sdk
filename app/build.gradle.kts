@@ -49,6 +49,15 @@ android {
 
     }
 
+    applicationVariants.all {
+        val variant = this
+        variant.outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            if (variant.buildType.name == "release") {
+                output.outputFileName = "cit_nid_demo_app_v1.0.0.apk"
+            }
+        }
+    }
 }
 
 // ⚡ Put it HERE, outside android { } block

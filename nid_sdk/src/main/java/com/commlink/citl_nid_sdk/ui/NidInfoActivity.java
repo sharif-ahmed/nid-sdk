@@ -72,7 +72,7 @@ public class NidInfoActivity extends AppCompatActivity {
                                 public void onSuccess(NIDInfo info) {
                                     frontOcrRawData = info.getOcrRawData();
                                     Log.d("NID_INFO_OCR", frontOcrRawData);
-                                    binding.etOcrRaw.setText(frontOcrRawData);
+                                    //binding.etOcrRaw.setText(frontOcrRawData);
                                     binding.etNidNumber.setText(info.getNidNumber());
                                     binding.etDob.setText(info.getDateOfBirth());
                                     binding.etFullName.setText(info.getName());
