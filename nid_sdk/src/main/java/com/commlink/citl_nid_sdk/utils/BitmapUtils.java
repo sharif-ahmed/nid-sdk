@@ -2,7 +2,9 @@ package com.commlink.citl_nid_sdk.utils;
 
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.view.View;
 
 import java.io.ByteArrayOutputStream;
 
@@ -50,5 +52,25 @@ public class BitmapUtils {
         }
 
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+    }
+
+    public static Bitmap  base64ToBitmap(String base64String) {
+        try {
+            byte[] decodedBytes = Base64.decode(base64String, Base64.DEFAULT);
+            return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Bitmap cropBitmapToOverlay(Bitmap bitmap,View overlay) {
+
+        int left = overlay.getLeft();
+        int top = overlay.getTop();
+        int width = overlay.getWidth();
+        int height = overlay.getHeight();
+
+        return Bitmap.createBitmap(bitmap, left, top, width, height);
     }
 }

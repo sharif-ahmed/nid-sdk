@@ -32,7 +32,7 @@ public class OcrData implements Serializable {
     private Boolean isFaceMatchRequired;
     @SerializedName("photoBase64St")
     @Expose
-    private Object photoBase64St;
+    private String photoBase64St;
     @SerializedName("transactionid")
     @Expose
     private String transactionid;
@@ -101,11 +101,11 @@ public class OcrData implements Serializable {
         this.isFaceMatchRequired = isFaceMatchRequired;
     }
 
-    public Object getPhotoBase64St() {
+    public String getPhotoBase64St() {
         return photoBase64St;
     }
 
-    public void setPhotoBase64St(Object photoBase64St) {
+    public void setPhotoBase64St(String photoBase64St) {
         this.photoBase64St = photoBase64St;
     }
 

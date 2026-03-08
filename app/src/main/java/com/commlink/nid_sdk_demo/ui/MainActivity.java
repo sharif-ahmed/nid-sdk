@@ -81,9 +81,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             binding.cardStart.setVisibility(View.GONE);
             binding.layoutResult.setVisibility(View.VISIBLE);
-            int match = Integer.parseInt(info.getFaceMatchDetail().getFaceMatchCode());
+            //int match = Integer.parseInt(info.getFaceMatchDetail().getFaceMatchCode());
             // Status
-            if (match == 1) {
+            if (info != null && info.isFaceMatched()) {
                 binding.imgResultStatus.setImageResource(R.drawable.ic_check_circle);
                 binding.imgResultStatus.setColorFilter(ContextCompat.getColor(this, R.color.kyc_primary));
                 binding.tvResultStatus.setText("Verified Successfully");
@@ -96,15 +96,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Details
-            binding.tvResultScore.setText(String.valueOf(info.getFaceMatchDetail().getFaceMatchScore()));
+            //binding.tvResultScore.setText(String.valueOf(info.getFaceMatchDetail().getFaceMatchScore()));
             binding.tvResultName.setText(info.getName());
             binding.tvResultNid.setText(info.getNidNumber());
             binding.tvResultDob.setText(info.getDateOfBirth());
 
             // Selfie (Get from BitmapHolder if still available)
-            if (BitmapHolder.getSelfieBitmap() != null) {
+            /*if (BitmapHolder.getSelfieBitmap() != null) {
                 binding.imgResultSelfie.setImageBitmap(BitmapHolder.getSelfieBitmap());
-            }
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }

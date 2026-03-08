@@ -14,7 +14,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -113,6 +115,17 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
         // Set instruction for first random step
         instruction.setText(livenessDetector.getCurrentInstruction());
         slideInAnim = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
+
+        getOnBackPressedDispatcher().addCallback(
+                this,
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        Toast.makeText(getApplicationContext(),
+                                "Back disabled during verification",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

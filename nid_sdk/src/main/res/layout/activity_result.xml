@@ -88,6 +88,7 @@
                 app:cardBackgroundColor="@color/kyc_card_bg"
                 app:cardCornerRadius="80dp"
                 app:cardElevation="4dp"
+                android:visibility="gone"
                 app:strokeColor="@color/kyc_primary"
                 app:strokeWidth="2dp">
 
@@ -128,6 +129,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
+                        android:visibility="gone"
                         android:orientation="horizontal">
                         <TextView
                             android:layout_width="0dp"
@@ -144,11 +146,78 @@
                             android:text="0.95" />
                     </LinearLayout>
 
+                    <!-- Name Matched-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="gone"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Name Mathced"
+                            android:textColor="@color/kyc_text_hint" />
+                        <TextView
+                            android:id="@+id/tvResultNameMatched"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/kyc_text_primary"
+                            android:text="John Doe" />
+                    </LinearLayout>
+
+                    <!-- Dob Matched-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="gone"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Dob Mathced"
+                            android:textColor="@color/kyc_text_hint" />
+                        <TextView
+                            android:id="@+id/tvResultDobMatched"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/kyc_text_primary"
+                            android:text="John Doe" />
+                    </LinearLayout>
+
+                    <!-- Nid Matched-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="gone"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="NID Mathced"
+                            android:textColor="@color/kyc_text_hint" />
+                        <TextView
+                            android:id="@+id/tvResultNidMatched"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/kyc_text_primary"
+                            android:text="John Doe" />
+                    </LinearLayout>
+
                     <!-- Match Score -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
+                        android:visibility="gone"
                         android:orientation="horizontal">
                         <TextView
                             android:layout_width="0dp"
@@ -180,6 +249,90 @@
                         <TextView
                             android:id="@+id/tvResultName"
                             android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/kyc_text_primary"
+                            android:text="John Doe" />
+                    </LinearLayout>
+
+                    <!-- Full Name Bangla-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Name Bangla"
+                            android:textColor="@color/kyc_text_hint" />
+                        <TextView
+                            android:id="@+id/tvResultNameBangla"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/kyc_text_primary"
+                            android:text="John Doe" />
+                    </LinearLayout>
+
+                    <!-- Full Name Bangla-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Father Name Bangla"
+                            android:textColor="@color/kyc_text_hint" />
+                        <TextView
+                            android:id="@+id/tvResultFatherNameBangla"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/kyc_text_primary"
+                            android:text="John Doe" />
+                    </LinearLayout>
+
+                    <!-- Full Name Bangla-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Mother Name Bangla"
+                            android:textColor="@color/kyc_text_hint" />
+                        <TextView
+                            android:id="@+id/tvResultMotherNameBangla"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/kyc_text_primary"
+                            android:text="John Doe" />
+                    </LinearLayout>
+
+                    <!-- Full Name Bangla-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Address Bangla"
+                            android:textColor="@color/kyc_text_hint" />
+                        <TextView
+                            android:id="@+id/tvResultAddressBangla"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:textColor="@color/kyc_text_primary"

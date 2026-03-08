@@ -16,6 +16,7 @@ import com.commlink.citl_nid_sdk.databinding.ActivityResultBinding;
 import com.commlink.citl_nid_sdk.db.NidDatabase;
 import com.commlink.citl_nid_sdk.model.NIDInfo;
 import com.commlink.citl_nid_sdk.utils.BitmapHolder;
+import com.commlink.citl_nid_sdk.utils.BitmapUtils;
 import com.commlink.citl_nid_sdk.utils.CallbackHolder;
 
 import java.util.concurrent.Executors;
@@ -71,8 +72,9 @@ public class ResultActivity extends AppCompatActivity {
 
     private void populateUI(NIDInfo nidInfo) {
         // Icon and Colors
-        int match = Integer.parseInt(nidInfo.getFaceMatchDetail().getFaceMatchCode());
-        if (match == 1) {
+        //ecVerifyResponse != null ? ecVerifyResponse.result.getStatusCode() : 401
+        //int match = Integer.parseInt((nidInfo.getFaceMatchDetail().getFaceMatchCode() != null) ? nidInfo.getFaceMatchDetail().getFaceMatchCode() : "0");
+        if (nidInfo != null  && nidInfo.isFaceMatched()) {
             binding.imgStatusIcon.setImageResource(R.drawable.ic_check_circle);
             binding.imgStatusIcon.setColorFilter(ContextCompat.getColor(this, R.color.kyc_primary));
             binding.statusText.setText(R.string.nid_result_match);
@@ -87,17 +89,28 @@ public class ResultActivity extends AppCompatActivity {
         }
 
         // Selfie
-        if (BitmapHolder.getSelfieBitmap() != null) {
+        /*if (BitmapHolder.getSelfieBitmap() != null) {
             binding.imgResultSelfie.setImageBitmap(BitmapHolder.getSelfieBitmap());
-        }
+        }*/
+
+        /*if (nidInfo.getOcrData() != null && nidInfo.getOcrData().getPhotoBase64St() != null) {
+            binding.imgResultSelfie.setImageBitmap(BitmapUtils.base64ToBitmap(nidInfo.getOcrData().getPhotoBase64St()));
+        }*/
 
         // Details
         //binding.tvResultScore.setText(String.format("%.3f", score));
-        binding.tvResultCode.setText(String.valueOf(nidInfo.getFaceMatchDetail().getFaceMatchCode()));
+        //binding.tvResultCode.setText(String.valueOf(nidInfo.getFaceMatchDetail().getFaceMatchCode()));
         binding.tvResultName.setText(nidInfo.getName());
+        binding.tvResultNameBangla.setText(nidInfo.getOcrData().getNameBangla());
+        binding.tvResultFatherNameBangla.setText(nidInfo.getOcrData().getFatherName());
+        binding.tvResultMotherNameBangla.setText(nidInfo.getOcrData().getMotherName());
+        binding.tvResultAddressBangla.setText(nidInfo.getOcrData().getAddress());
         binding.tvResultNid.setText(nidInfo.getNidNumber());
         binding.tvResultDob.setText(nidInfo.getDateOfBirth());
-        binding.tvResultScore.setText(String.valueOf(nidInfo.getFaceMatchDetail().getFaceMatchScore()));
+        //binding.tvResultScore.setText(String.valueOf(nidInfo.getFaceMatchDetail().getFaceMatchScore()));
+        binding.tvResultNidMatched.setText(String.valueOf(nidInfo.getEcValidation().getNidMatched()));
+        binding.tvResultNameMatched.setText(String.valueOf(nidInfo.getEcValidation().getNameMatched()));
+        binding.tvResultDobMatched.setText(String.valueOf(nidInfo.getEcValidation().getDobMatched()));
 
         binding.doneButton.setOnClickListener(v -> {
             //NIDInfo info = new NIDInfo(nid, name, dob);

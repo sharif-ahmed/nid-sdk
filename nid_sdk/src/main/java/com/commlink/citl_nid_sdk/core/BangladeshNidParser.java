@@ -456,7 +456,7 @@ public class BangladeshNidParser {
     }
 
     // Extract Bangla Address
-    static String extractBanglaAddress(String text) {
+    /*static String extractBanglaAddress(String text) {
         String[] lines = text.split("\\n");
         StringBuilder address = new StringBuilder();
         boolean foundAddress = false;
@@ -502,6 +502,71 @@ public class BangladeshNidParser {
         }
 
         return address.toString().trim();
+    }*/
+
+    /*
+    * escape english in address bangla ocr
+    * */
+    // Extract Bangla Address
+    static String extractBanglaAddress(String text) {
+        String[] lines = text.split("\\n");
+        StringBuilder address = new StringBuilder();
+        boolean foundAddress = false;
+
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i].trim();
+            // Address usually starts after "ঠিকানা:" label on the back side
+            if (line.contains("ঠিকানা") || line.contains("Address")) {
+                foundAddress = true;
+                // Check if the same line has some content after the label
+                String[] parts = line.split("[:：]");
+                if (parts.length > 1 && !parts[1].trim().isEmpty()) {
+                    address.append(parts[1].trim()).append(" ");
+                }
+                continue;
+            }
+
+            if (foundAddress) {
+                // If we hit another major label or empty line, stop
+                if (line.isEmpty() || line.contains("রক্তের") || line.contains("জন্ম") || line.contains("Blood")
+                        || line.contains("Place")) {
+                    break;
+                }
+                // Append multi-line address
+                address.append(line).append(" ");
+
+                // Usually address is 2-4 lines long
+                if (address.toString().split(" ").length > 20)
+                    break;
+            }
+        }
+
+        // Fallback: If no label found, look for typical address keywords like
+        // "বাসা/হোল্ডিং"
+        if (address.length() == 0) {
+            for (String line : lines) {
+                String l = line.trim();
+                if (l.contains("বাসা") || l.contains("গ্রাম/রাস্তা") || l.contains("ডাকঘর")) {
+                    address.append(l).append(" ");
+                    foundAddress = true;
+                } else if (foundAddress) {
+                    if (l.isEmpty() || l.contains("রক্তের"))
+                        break;
+                    address.append(l).append(" ");
+                }
+            }
+        }
+
+        String result = address.toString().trim();
+        return stripEnglish(result);
+    }
+
+    private static String stripEnglish(String input) {
+        if (input == null)
+            return "";
+        // Remove English alphabets (A-Z, a-z)
+        // Keep Bangla, numbers, and common punctuation (, - / .)
+        return input.replaceAll("[A-Za-z]", "").replaceAll("\\s+", " ").trim();
     }
 
     public static String cleanNid(String input) {

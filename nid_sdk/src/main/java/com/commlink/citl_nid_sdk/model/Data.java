@@ -10,6 +10,9 @@ public class Data{
     @SerializedName("timeStamp")
     @Expose
     private String timeStamp;
+    @SerializedName("faceMatched")
+    @Expose
+    private boolean faceMatched;
     @SerializedName("ocrData")
     @Expose
     private OcrData ocrData;
@@ -19,6 +22,14 @@ public class Data{
     @SerializedName("faceMatchDetail")
     @Expose
     private FaceMatchDetail faceMatchDetail;
+
+    public boolean isFaceMatched() {
+        return faceMatched;
+    }
+
+    public void setFaceMatched(boolean faceMatched) {
+        this.faceMatched = faceMatched;
+    }
 
     public String getTransactionId() {
         return transactionId;

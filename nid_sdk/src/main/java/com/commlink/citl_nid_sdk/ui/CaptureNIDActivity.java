@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageButton;
@@ -14,6 +16,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -33,11 +36,13 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import android.util.Size;
+import android.widget.Toast;
 
 import com.commlink.citl_nid_sdk.R;
 import com.commlink.citl_nid_sdk.core.NIDCallback;
 import com.commlink.citl_nid_sdk.model.NIDError;
 import com.commlink.citl_nid_sdk.utils.BitmapHolder;
+import com.commlink.citl_nid_sdk.utils.BitmapUtils;
 import com.commlink.citl_nid_sdk.utils.BitmapUtilsExt;
 import com.commlink.citl_nid_sdk.utils.CallbackHolder;
 import com.commlink.citl_nid_sdk.utils.CameraPermissionHelper;
@@ -133,6 +138,17 @@ public class CaptureNIDActivity extends AppCompatActivity {
         });
 
         setupInstructions();
+
+        getOnBackPressedDispatcher().addCallback(
+                this,
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        Toast.makeText(getApplicationContext(),
+                                "Back disabled during verification",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void setupInstructions() {
@@ -246,7 +262,15 @@ public class CaptureNIDActivity extends AppCompatActivity {
                                                 rotatedBitmap.getWidth() + "x" + rotatedBitmap.getHeight());
                                     }
                                     //Bitmap zoomBitmap = zoomBitmap(rotatedBitmap,0.3f, 0.3f);
+                                    /*RectF rect = overlayView.getFocusRect();
+                                    int left = (int) rect.left;
+                                    int top = (int) rect.top;
+                                    int width = (int) rect.width();
+                                    int height = (int) rect.height();
+                                    Bitmap cropped = Bitmap.createBitmap(bitmap, left, top, width, height);*/
+                                    //Bitmap cropped = BitmapUtils.cropBitmapToOverlay(rotatedBitmap,overlayView);
                                     String savedPath = saveBitmapToFile(rotatedBitmap);
+                                    //String savedPath = saveBitmapToFile(cropped);
                                     BitmapHolder.setNidBitmap(rotatedBitmap);
                                     runOnUiThread(() -> {
                                         captureButton.setEnabled(true);
@@ -352,12 +376,16 @@ public class CaptureNIDActivity extends AppCompatActivity {
         options.setShowCropGrid(false);
         options.setHideBottomControls(false);
         options.setFreeStyleCropEnabled(false);
+        /*options.setDimmedLayerColor(Color.TRANSPARENT);
+        options.setCropFrameColor(Color.TRANSPARENT);
+        options.setCropGridColor(Color.TRANSPARENT);
+        options.setShowCropFrame(false);*/
         // Optional: auto-fit image to crop bounds
         options.setImageToCropBoundsAnimDuration(1);
 
         UCrop uCrop = UCrop.of(android.net.Uri.fromFile(new File(imagePath)), android.net.Uri.fromFile(destinationFile))
                 //.withAspectRatio(1585, 1000) // ID card aspect ratio
-                .withAspectRatio(16,9)
+                .withAspectRatio(17,12)
                 .withOptions(options);
 
         uCropLauncher.launch(uCrop.getIntent(this));

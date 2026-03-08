@@ -9,7 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -56,6 +58,17 @@ public class VerificationSummaryActivity extends AppCompatActivity {
 
         setupUI();
         loadData();
+
+        getOnBackPressedDispatcher().addCallback(
+                this,
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        Toast.makeText(getApplicationContext(),
+                                "Back disabled during verification",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void setupUI() {
@@ -107,7 +120,7 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                 dialog.dismiss();
                 NidFaceVerificationResponse verificationResponse = response.body();
                 if (response.isSuccessful() && response.body() != null) {
-                    if (verificationResponse.getData() != null) {
+                    if (verificationResponse != null && verificationResponse.getData() != null) {
                         showStatusDialog(
                                 true,
                                 String.valueOf(verificationResponse.result.getStatusCode()),
@@ -118,8 +131,11 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                         showStatusDialog(
                                 true,
                                 String.valueOf(verificationResponse.result.getStatusCode()),
-                                "Face verification api successful, but no data found.",
-                                () -> relayResponse(verificationResponse)
+                                "Face verification API called successfully, but no data found.",
+                                () -> {
+                                    //relayResponse(verificationResponse);
+                                    finish();
+                                }
                         );
                     }
                 } else {
@@ -274,6 +290,7 @@ public class VerificationSummaryActivity extends AppCompatActivity {
 
         new MaterialAlertDialogBuilder(this)
                 .setView(view)
+                .setCancelable(false)
                 .setPositiveButton("OK", (dialog, which) -> {
                     dialog.dismiss();
                     if (listener != null) {
@@ -282,6 +299,7 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                     finish();
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.dismiss();
                 })
                 .show();
     }

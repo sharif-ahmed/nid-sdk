@@ -16,9 +16,18 @@ public class NIDInfo implements Serializable {
     private String motherNameBangla;
     private String addressBangla;
     private String ocrRawData;
+    private boolean faceMatched;
     private OcrData ocrData;
     private EcValidation ecValidation;
     private FaceMatchDetail faceMatchDetail;
+
+    public boolean isFaceMatched() {
+        return faceMatched;
+    }
+
+    public void setFaceMatched(boolean faceMatched) {
+        this.faceMatched = faceMatched;
+    }
 
     public OcrData getOcrData() {
         return ocrData;

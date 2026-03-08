@@ -19,7 +19,7 @@ public class OverlayView extends View {
     private boolean forFace = false;
     /** Progress for current step (0..1), drawn as round arc on oval */
     private float ovalProgress = 0f;
-
+    private RectF focusRect;
     public OverlayView(Context context) {
         super(context);
         init();
@@ -70,7 +70,7 @@ public class OverlayView extends View {
         }
     }
 
-    @Override
+    /*@Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
@@ -119,6 +119,65 @@ public class OverlayView extends View {
 
             canvas.drawRoundRect(focusRect, 30f, 30f, strokePaint);
         }
+    }*/
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        int width = getWidth();
+        int height = getHeight();
+
+        if (forFace) {
+
+            float ovalWidth = width * 0.7f;
+            float ovalHeight = height * 0.5f;
+            float left = (width - ovalWidth) / 2;
+            float top = (height - ovalHeight) / 4;
+
+            focusRect = new RectF(left, top, left + ovalWidth, top + ovalHeight);
+
+            canvas.drawARGB(0, 0, 0, 0);
+
+            canvas.saveLayer(0, 0, width, height, null);
+            canvas.drawRect(0, 0, width, height, shadePaint);
+
+            Paint clearPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            canvas.drawOval(focusRect, clearPaint);
+            canvas.restore();
+
+            canvas.drawOval(focusRect, strokePaint);
+
+            if (ovalProgress > 0.001f) {
+                float sweepAngle = ovalProgress * 360f;
+                canvas.drawArc(focusRect, 270f, sweepAngle, false, progressArcPaint);
+            }
+
+        } else {
+
+            float cardWidth = width * 0.95f;
+            float cardHeight = cardWidth * 0.68f;
+
+            float left = (width - cardWidth) / 2;
+            float top = (height - cardHeight) / 2;
+
+            focusRect = new RectF(left, top, left + cardWidth, top + cardHeight);
+
+            canvas.saveLayer(0, 0, width, height, null);
+            canvas.drawRect(0, 0, width, height, shadePaint);
+
+            Paint clearPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            canvas.drawRoundRect(focusRect, 30f, 30f, clearPaint);
+            canvas.restore();
+
+            canvas.drawRoundRect(focusRect, 30f, 30f, strokePaint);
+        }
+    }
+
+    public RectF getFocusRect() {
+        return focusRect;
     }
 }
 

@@ -202,6 +202,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Match Score"
+                                    android:visibility="gone"
                                     android:textColor="@color/kyc_text_hint"
                                     android:textSize="12sp" />
 
@@ -211,6 +212,7 @@
                                     android:layout_height="wrap_content"
                                     android:fontFamily="sans-serif-medium"
                                     android:text="0.958"
+                                    android:visibility="gone"
                                     android:textColor="@color/kyc_text_primary"
                                     android:textSize="18sp" />
 
