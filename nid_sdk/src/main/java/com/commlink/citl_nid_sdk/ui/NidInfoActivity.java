@@ -25,7 +25,9 @@ import com.commlink.citl_nid_sdk.db.NidDatabase;
 import com.commlink.citl_nid_sdk.model.NIDInfo;
 import com.commlink.citl_nid_sdk.model.NidECVerifyRequest;
 import com.commlink.citl_nid_sdk.model.NidEcVerifyResponse;
+import com.commlink.citl_nid_sdk.model.NidFaceVerificationResponse;
 import com.commlink.citl_nid_sdk.model.NidInfoEntity;
+import com.commlink.citl_nid_sdk.model.Result;
 import com.commlink.citl_nid_sdk.network.ApiClient;
 import com.commlink.citl_nid_sdk.utils.CallbackHolder;
 import com.commlink.citl_nid_sdk.utils.DateConverter;
@@ -40,7 +42,6 @@ import java.util.concurrent.Executors;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
 
 
 public class NidInfoActivity extends AppCompatActivity {
@@ -286,7 +287,7 @@ public class NidInfoActivity extends AppCompatActivity {
 
         String apiKey = CallbackHolder.getInstance().getLicenseKey();
 
-        ApiClient.getService(this).validateEC(apiKey, request).enqueue(new Callback<NidEcVerifyResponse>() {
+        /*ApiClient.getService(this).validateEC(apiKey, request).enqueue(new Callback<NidEcVerifyResponse>() {
             @Override
             public void onResponse(Call<NidEcVerifyResponse> call, Response<NidEcVerifyResponse> response) {
                 try {
@@ -303,21 +304,22 @@ public class NidInfoActivity extends AppCompatActivity {
                                         saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId);
                                         SelfieActivity.start(NidInfoActivity.this);
                                         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                                        finish();                                    }
+                                        finish();
+                                    }
                             );
                         } else {
-                            showStatusDialog(
-                                    true,
-                                    String.valueOf(response.code()),
-                                    "Request completed successfully, but no data was found.",
-                                    () -> {
-                                        //String txId2 = "4c8f6199-1427-4385-9789-81066ea5cd9a";
-                                        String txId2 = "";
-                                        saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId2);
-                                        SelfieActivity.start(NidInfoActivity.this);
-                                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                                        finish();                                    }
-                            );
+                            if (ecVerifyResponse != null && ecVerifyResponse.getResult() != null) {
+                                if (ecVerifyResponse.getResult().getIsError()) {
+                                    showStatusDialog(
+                                            false,
+                                            String.valueOf(ecVerifyResponse.getResult().getStatusCode()),
+                                            ecVerifyResponse.getResult().getErrorMsg(),
+                                            () -> {
+                                            }
+                                    );
+                                }
+                            }
+
                         }
                     } else {
                         if (response.code() == 401) {
@@ -336,6 +338,76 @@ public class NidInfoActivity extends AppCompatActivity {
                         } else {
                             showErrorDialog(String.valueOf(response.code()), response.message());
                         }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NidEcVerifyResponse> call, Throwable t) {
+                dialog.dismiss();
+                showErrorDialog("Api Error", t.getMessage());
+            }
+        });*/
+
+        ApiClient.getService(this).validateEC(apiKey, request).enqueue(new Callback<NidEcVerifyResponse>() {
+            @Override
+            public void onResponse(Call<NidEcVerifyResponse> call, Response<NidEcVerifyResponse> response) {
+                try {
+                    dialog.dismiss();
+                    NidEcVerifyResponse ecVerifyResponse = response.body();
+                    Result<?> result = ecVerifyResponse != null ? ecVerifyResponse.getResult() : null;
+                    int statusCode = result != null && result.getStatusCode() != null ? result.getStatusCode() : response.code();
+                    switch (statusCode) {
+                        case 200:
+                            if (ecVerifyResponse != null && ecVerifyResponse.getData() != null) {
+                                showStatusDialog(
+                                        true,
+                                        String.valueOf(response.code()),
+                                        "NID EC Verify Successful!!",
+                                        () -> {
+                                            String txId = ecVerifyResponse.getData().getTransactionId();
+                                            saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId);
+                                            SelfieActivity.start(NidInfoActivity.this);
+                                            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                                            finish();
+                                        }
+                                );
+                            } else {
+                                if (ecVerifyResponse != null && ecVerifyResponse.getResult() != null && ecVerifyResponse.getResult().getIsError()) {
+                                    showStatusDialog(
+                                            false,
+                                            String.valueOf(ecVerifyResponse.getResult().getStatusCode()),
+                                            ecVerifyResponse.getResult().getErrorMsg(),
+                                            () -> {}
+                                    );
+                                }
+                            }
+                            break;
+
+                        case 401: // Unauthorized
+                            showStatusDialog(
+                                    false,
+                                    String.valueOf(statusCode),
+                                    result != null && result.getErrorMsg() != null ? result.getErrorMsg() : "Unauthorized",
+                                    () -> {
+                                        Intent intent = new Intent(NidInfoActivity.this, VerificationStepActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        intent.putExtra("finish", true);
+                                        startActivity(intent);
+                                        finish();
+                                    });
+                            break;
+
+                        default: // Any other error
+                            showStatusDialog(
+                                    false,
+                                    String.valueOf(statusCode),
+                                    result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message(),
+                                    () -> {}
+                            );
+                            break;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -371,7 +443,16 @@ public class NidInfoActivity extends AppCompatActivity {
         });
     }*/
 
-    private void saveToDatabase(String nidNumber, String fullName, String nameBangla, String fatherNameBangla, String motherNameBangla, String addressBangla, String dob, String txId) {
+    private void saveToDatabase(
+            String nidNumber,
+            String fullName,
+            String nameBangla,
+            String fatherNameBangla,
+            String motherNameBangla,
+            String addressBangla,
+            String dob,
+            String txId
+    ) {
         NidInfoEntity entity = new NidInfoEntity();
         entity.setNidNumber(nidNumber);
         entity.setFullName(fullName);
@@ -391,8 +472,7 @@ public class NidInfoActivity extends AppCompatActivity {
         executor.execute(() -> {
             NidDatabase db = NidDatabase.getDatabase(getApplicationContext());
             db.nidInfoDao().insert(entity);
-
-            runOnUiThread(this::showSuccessDialog);
+            //runOnUiThread(this::showSuccessDialog);
         });
     }
 

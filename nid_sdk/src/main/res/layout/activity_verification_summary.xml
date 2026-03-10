@@ -70,6 +70,7 @@
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvSelfie"
                 android:layout_width="200dp"
                 android:layout_height="240dp"
                 android:layout_gravity="center_horizontal"
@@ -80,12 +81,36 @@
                 app:strokeColor="@color/kyc_primary"
                 app:strokeWidth="2dp">
 
-                <ImageView
-                    android:id="@+id/imgSelfie"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@string/kyc_selfie_label"
-                    android:scaleType="centerCrop" />
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/imgSelfie"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/kyc_selfie_label"
+                        android:scaleType="centerCrop" />
+
+                    <!-- Edit Button Overlay -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnEditSelfie"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="8dp"
+                        android:backgroundTint="@color/kyc_error"
+                        android:text="Edit"
+                        android:visibility="gone"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:cornerRadius="20dp"
+                        app:icon="@android:drawable/ic_menu_edit"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/white" />
+                </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- NID Images Header -->

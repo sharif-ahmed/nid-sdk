@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -47,7 +48,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
 public class SelfieActivity extends AppCompatActivity implements LivenessDetector.ActionProgressCallback {
 
     private PreviewView previewView;
@@ -60,12 +60,12 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     private LivenessDetector livenessDetector;
     private boolean livenessPassed = false;
     private boolean isCameraReady = false;
+    private boolean isCapturing = false;
 
     private ProgressBar pbBlink, pbSmile, pbTurn;
     private ImageView imgBlinkCheck, imgSmileCheck, imgTurnCheck;
     private LivenessDetector.ActionType currentAction;
     private Animation slideInAnim;
-
 
     public static void start(Context context) {
         context.startActivity(new Intent(context, SelfieActivity.class));
@@ -103,13 +103,13 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
         }
 
         captureButton.setOnClickListener(v -> {
-            if (isCameraReady && livenessPassed) {
-                captureSelfie();
-            } else if (!isCameraReady) {
-                instruction.setText("Camera not ready");
-            } else {
-                instruction.setText(R.string.nid_selfie_liveness_not_ready);
-            }
+            // if (isCameraReady && livenessPassed) {
+            // captureSelfie();
+            // } else if (!isCameraReady) {
+            // instruction.setText("Camera not ready");
+            // } else {
+            // instruction.setText(R.string.nid_selfie_liveness_not_ready);
+            // }
         });
 
         // Set instruction for first random step
@@ -129,7 +129,8 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CameraPermissionHelper.getRequestCode()) {
             if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
@@ -141,8 +142,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     }
 
     private void startCamera() {
-        ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
-                ProcessCameraProvider.getInstance(this);
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         cameraProviderFuture.addListener(() -> {
             try {
@@ -175,11 +175,10 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                     cameraSelector,
                     preview,
                     imageCapture,
-                    analysis
-            );
+                    analysis);
 
             preview.setSurfaceProvider(previewView.getSurfaceProvider());
-            
+
             isCameraReady = true;
             runOnUiThread(() -> captureButton.setEnabled(false));
         } catch (Exception e) {
@@ -191,7 +190,8 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     @OptIn(markerClass = ExperimentalGetImage.class)
     private void analyzeLiveness(@NonNull ImageProxy imageProxy) {
         try {
-            InputImage img = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
+            InputImage img = InputImage.fromMediaImage(imageProxy.getImage(),
+                    imageProxy.getImageInfo().getRotationDegrees());
             livenessDetector.analyzeFrame(img, result -> {
                 runOnUiThread(() -> {
                     String targetText;
@@ -233,6 +233,11 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                     }
                     instruction.setBackgroundResource(backgroundRes);
                     captureButton.setEnabled(canCapture);
+
+                    if (canCapture && !isCapturing) {
+                        isCapturing = true;
+                        new Handler().postDelayed(this::captureSelfie,100L);
+                    }
                 });
                 imageProxy.close();
             });
@@ -266,7 +271,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
             }
         });
     }
-    
+
     /**
      * Reset progress bar visual for next action (optional - for smooth transition)
      */
@@ -391,8 +396,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                             handleCameraError(exception);
                         });
                     }
-                }
-        );
+                });
     }
 
     private void handleLivenessError(Exception e) {
@@ -416,7 +420,8 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     }
 
     private Bitmap rotateBitmap(Bitmap bitmap, int degrees) {
-        if (degrees == 0 || bitmap == null) return bitmap;
+        if (degrees == 0 || bitmap == null)
+            return bitmap;
         Matrix matrix = new Matrix();
         matrix.postRotate(degrees);
         Bitmap rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
@@ -429,6 +434,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (cameraExecutor != null) cameraExecutor.shutdown();
+        if (cameraExecutor != null)
+            cameraExecutor.shutdown();
     }
 }

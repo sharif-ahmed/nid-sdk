@@ -122,7 +122,7 @@ public class NidDocumentParser {
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             if (isEnglishName(line)) {
-                Pattern pattern = Pattern.compile("^Name\\s*:?\\s*([A-Z]{2,}(?:\\s[A-Z]{2,})+)$");
+                Pattern pattern = Pattern.compile("^Name\\s*:?\\s*([A-Z.]{2,}(?:\\s[A-Z.]{2,})+)$");
                 Matcher matcher = pattern.matcher(line.trim());
 
                 if (matcher.find()) {

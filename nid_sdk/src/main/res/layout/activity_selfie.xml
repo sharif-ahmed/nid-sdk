@@ -209,7 +209,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/nid_capture_button_bg"
+            android:background="@drawable/selfie_capture_btn"
             android:contentDescription="@string/nid_selfie_capture"
             android:enabled="false" />
     </LinearLayout>

@@ -54,7 +54,7 @@ android {
         variant.outputs.all {
             val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
             if (variant.buildType.name == "release") {
-                output.outputFileName = "cit_nid_demo_app_v1.0.0.apk"
+                output.outputFileName = "citl_nid_demo_app_v1.0.0.apk"
             }
         }
     }
