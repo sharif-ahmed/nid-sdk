@@ -331,10 +331,34 @@ public class VerificationSummaryActivity extends AppCompatActivity {
         executor.execute(() -> {
             NidDatabase db = NidDatabase.getDatabase(getApplicationContext());
             List<NidInfoEntity> entities = db.nidInfoDao().getAll();
-            if (!entities.isEmpty()) {
+            NidInfoEntity entity = db.nidInfoDao().getLastEntry();
+            /*if (!entities.isEmpty()) {
                 NidInfoEntity entity = entities.get(entities.size() - 1); // Get latest
                 currentEntity = entity;
 
+                runOnUiThread(() -> {
+                    binding.tvFullName.setText(entity.getFullName());
+                    binding.tvNameBangla.setText(entity.getNameBangla());
+                    binding.tvNidNumber.setText(entity.getNidNumber());
+                    binding.tvFatherName.setText(entity.getFatherName());
+                    binding.tvFatherNameBangla.setText(entity.getFatherNameBangla());
+                    binding.tvMotherName.setText(entity.getMotherName());
+                    binding.tvMotherNameBangla.setText(entity.getMotherNameBangla());
+                    binding.tvAddressBangla.setText(entity.getAddressBangla());
+                    binding.tvDob.setText(entity.getDateOfBirth());
+
+                    if (entity.getFrontImagePath() != null) {
+                        binding.imgNidFront.setImageBitmap(BitmapFactory.decodeFile(entity.getFrontImagePath()));
+                        BitmapHolder.setNidBitmap(BitmapFactory.decodeFile(entity.getFrontImagePath()));
+                    }
+                    if (entity.getBackImagePath() != null) {
+                        binding.imgNidBack.setImageBitmap(BitmapFactory.decodeFile(entity.getBackImagePath()));
+                    }
+                });
+            }*/
+
+            if (entity != null) {
+                currentEntity = entity;
                 runOnUiThread(() -> {
                     binding.tvFullName.setText(entity.getFullName());
                     binding.tvNameBangla.setText(entity.getNameBangla());

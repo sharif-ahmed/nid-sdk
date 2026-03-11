@@ -18,6 +18,9 @@ public interface NidInfoDao {
     @Query("SELECT * FROM nid_info ORDER BY createdAt DESC")
     List<NidInfoEntity> getAll();
 
+    @Query("SELECT * FROM nid_info ORDER BY id DESC LIMIT 1")
+    NidInfoEntity getLastEntry();
+
     @Query("SELECT * FROM nid_info WHERE id = :id")
     NidInfoEntity getById(int id);
 
