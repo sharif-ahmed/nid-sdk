@@ -41,6 +41,7 @@ import com.commlink.citl_nid_sdk.utils.BitmapHolder;
 import com.commlink.citl_nid_sdk.utils.BitmapUtilsExt;
 import com.commlink.citl_nid_sdk.utils.CallbackHolder;
 import com.commlink.citl_nid_sdk.utils.CameraPermissionHelper;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 
@@ -66,6 +67,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     private ImageView imgBlinkCheck, imgSmileCheck, imgTurnCheck;
     private LivenessDetector.ActionType currentAction;
     private Animation slideInAnim;
+    private long backPressedTime;
 
     public static void start(Context context) {
         context.startActivity(new Intent(context, SelfieActivity.class));
@@ -121,9 +123,14 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                 new OnBackPressedCallback(true) {
                     @Override
                     public void handleOnBackPressed() {
-                        Toast.makeText(getApplicationContext(),
-                                "Back disabled during verification",
-                                Toast.LENGTH_SHORT).show();
+                        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+                            showExitConfirmationDialog();
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    "Press back again to exit",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        backPressedTime = System.currentTimeMillis();
                     }
                 });
     }
@@ -436,5 +443,20 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
         super.onDestroy();
         if (cameraExecutor != null)
             cameraExecutor.shutdown();
+    }
+
+    private void showExitConfirmationDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Exit Verification")
+                .setMessage("Are you sure you want to exit the verification process?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    Intent intent = new Intent(this, VerificationStepActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("finish", true);
+                    startActivity(intent);
+                    finish();
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }

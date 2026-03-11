@@ -102,7 +102,7 @@
                         android:layout_centerHorizontal="true"
                         android:layout_marginBottom="8dp"
                         android:backgroundTint="@color/kyc_error"
-                        android:text="Edit"
+                        android:text="Retake"
                         android:visibility="gone"
                         android:textColor="@color/white"
                         android:textSize="12sp"

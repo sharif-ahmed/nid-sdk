@@ -100,7 +100,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
-                        android:text="@string/kyc_step_1"
+                        android:text=""
                         android:textAllCaps="true"
                         android:textColor="@color/kyc_primary"
                         android:textSize="11sp"
@@ -112,7 +112,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif-medium"
-                        android:text="@string/kyc_card_nid_title"
+                        android:text="@string/kyc_start_verification"
                         android:textColor="@color/kyc_text_primary"
                         android:textSize="17sp" />
 
@@ -121,7 +121,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif"
-                        android:text="@string/kyc_card_nid_desc"
+                        android:text=""
                         android:textColor="@color/kyc_text_hint"
                         android:textSize="13sp" />
                 </LinearLayout>

@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import com.commlink.citl_nid_sdk.R;
 import com.commlink.citl_nid_sdk.core.NIDOCRProcessor;
 import com.commlink.citl_nid_sdk.databinding.ActivityNidInfoBinding;
 import com.commlink.citl_nid_sdk.db.NidDatabase;
+import com.commlink.citl_nid_sdk.model.EcValidation;
 import com.commlink.citl_nid_sdk.model.NIDInfo;
 import com.commlink.citl_nid_sdk.model.NidECVerifyRequest;
 import com.commlink.citl_nid_sdk.model.NidEcVerifyResponse;
@@ -52,6 +54,8 @@ public class NidInfoActivity extends AppCompatActivity {
     private String frontOcrRawData = null;
     private String backOcrRawData = null;
     private ExecutorService executor;
+
+    private long backPressedTime;
 
     // Launcher for CaptureNIDActivity — receives image path back
     private final ActivityResultLauncher<Intent> captureNidLauncher =
@@ -126,6 +130,22 @@ public class NidInfoActivity extends AppCompatActivity {
         executor = Executors.newSingleThreadExecutor();
 
         setupUI();
+
+        getOnBackPressedDispatcher().addCallback(
+                this,
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+                            showExitConfirmationDialog();
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    "Press back again to exit",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        backPressedTime = System.currentTimeMillis();
+                    }
+                });
     }
 
     private void setupUI() {
@@ -362,23 +382,43 @@ public class NidInfoActivity extends AppCompatActivity {
                     switch (statusCode) {
                         case 200:
                             if (ecVerifyResponse != null && ecVerifyResponse.getData() != null) {
-                                showStatusDialog(
-                                        true,
-                                        String.valueOf(response.code()),
-                                        "NID EC Verify Successful!!",
-                                        () -> {
-                                            String txId = ecVerifyResponse.getData().getTransactionId();
-                                            saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId);
-                                            SelfieActivity.start(NidInfoActivity.this);
-                                            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                                            finish();
+                                if (ecVerifyResponse.getData().getEcValidation() != null) {
+                                    EcValidation ecValidation = ecVerifyResponse.getData().getEcValidation();
+                                    if (
+                                            ecValidation.getDobMatched() &&
+                                            ecValidation.getNameMatched() &&
+                                            !ecVerifyResponse.getResult().getIsError()
+                                    ) {
+                                        showStatusDialog(
+                                                true,
+                                                String.valueOf(statusCode),
+                                                "NID EC Verify Successful!!",
+                                                () -> {
+                                                    String txId = ecVerifyResponse.getData().getTransactionId();
+                                                    saveToDatabase(nidNumber, fullName, nameBangla, fatherNameBangla, motherNameBangla, addressBangla, dob, txId);
+                                                    SelfieActivity.start(NidInfoActivity.this);
+                                                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                                                    finish();
+                                                }
+                                        );
+                                    } else {
+                                        showErrorDialog("", "NID EC Verify NID Information Not Matched");
+                                        if (!ecValidation.getNidMatched() && ecVerifyResponse.getResult().getIsError()) {
+                                            binding.tilNidNumber.setError("NID Number Not Matched");
                                         }
-                                );
+                                        if (!ecValidation.getDobMatched()) {
+                                            binding.tilDob.setError("DOB Not Matched");
+                                        }
+                                        if (!ecValidation.getNameMatched()) {
+                                            binding.tilDob.setError("Full Name Not Matched");
+                                        }
+                                    }
+                                }
                             } else {
                                 if (ecVerifyResponse != null && ecVerifyResponse.getResult() != null && ecVerifyResponse.getResult().getIsError()) {
                                     showStatusDialog(
                                             false,
-                                            String.valueOf(ecVerifyResponse.getResult().getStatusCode()),
+                                            String.valueOf(statusCode),
                                             ecVerifyResponse.getResult().getErrorMsg(),
                                             () -> {}
                                     );
@@ -399,14 +439,20 @@ public class NidInfoActivity extends AppCompatActivity {
                                         finish();
                                     });
                             break;
+                        case 21:
+                            String errorMsg = result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message();
+                            showErrorDialog(String.valueOf(statusCode), errorMsg);
+                            if (errorMsg.contains("Date of Birth")) {
+                                binding.tilDob.setError("DOB Not Matched");
+                            }
+                            if (errorMsg.contains("Full Name")) {
+                                binding.tilFullName.setError("Full Name Not Matched");
+                            }
+                            break;
 
                         default: // Any other error
-                            showStatusDialog(
-                                    false,
-                                    String.valueOf(statusCode),
-                                    result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message(),
-                                    () -> {}
-                            );
+                            String errorMsg1 = result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message();
+                            showErrorDialog(String.valueOf(statusCode), errorMsg1);
                             break;
                     }
                 } catch (Exception e) {
@@ -509,6 +555,21 @@ public class NidInfoActivity extends AppCompatActivity {
         new MaterialAlertDialogBuilder(this)
                 .setView(view)
                 .setPositiveButton("OK", null)
+                .show();
+    }
+
+    private void showExitConfirmationDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Exit Verification")
+                .setMessage("Are you sure you want to exit the verification process?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    Intent intent = new Intent(this, VerificationStepActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("finish", true);
+                    startActivity(intent);
+                    finish();
+                })
+                .setNegativeButton("No", null)
                 .show();
     }
 

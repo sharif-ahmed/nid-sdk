@@ -28,6 +28,7 @@
     <string name="kyc_verification_title">Identity Verification</string>
     <string name="kyc_verification_subtitle">Complete the following steps to verify your identity</string>
     <string name="kyc_card_nid_title">Submit NID Information</string>
+    <string name="kyc_start_verification">Start Verification</string>
     <string name="kyc_card_nid_desc">Provide your National ID details</string>
     <string name="kyc_card_selfie_title">Take Selfie</string>
     <string name="kyc_card_selfie_desc">Capture your live selfie</string>

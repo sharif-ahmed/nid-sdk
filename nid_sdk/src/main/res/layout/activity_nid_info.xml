@@ -268,6 +268,37 @@
                     android:textSize="15sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Date of Birth -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDob"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:boxBackgroundColor="@color/kyc_surface"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/kyc_primary"
+                app:endIconDrawable="@android:drawable/ic_menu_my_calendar"
+                app:endIconMode="custom"
+                app:hintTextColor="@color/kyc_primary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDob"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/kyc_dob_hint"
+                    android:textColor="@color/kyc_text_primary"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Full Name -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilFullName"
@@ -456,37 +487,6 @@
                     android:hint="@string/kyc_address_bangla_hint"
                     android:inputType="textMultiLine"
                     android:minLines="2"
-                    android:textColor="@color/kyc_text_primary"
-                    android:textSize="15sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Date of Birth -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilDob"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:boxBackgroundColor="@color/kyc_surface"
-                app:boxBackgroundMode="outline"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxStrokeColor="@color/kyc_primary"
-                app:endIconDrawable="@android:drawable/ic_menu_my_calendar"
-                app:endIconMode="custom"
-                app:hintTextColor="@color/kyc_primary"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etDob"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:fontFamily="sans-serif"
-                    android:hint="@string/kyc_dob_hint"
                     android:textColor="@color/kyc_text_primary"
                     android:textSize="15sp" />
             </com.google.android.material.textfield.TextInputLayout>

@@ -20,9 +20,11 @@ import com.commlink.citl_nid_sdk.R;
 import com.commlink.citl_nid_sdk.core.NIDCallback;
 import com.commlink.citl_nid_sdk.databinding.ActivityVerificationSummaryBinding;
 import com.commlink.citl_nid_sdk.db.NidDatabase;
+import com.commlink.citl_nid_sdk.model.EcValidation;
 import com.commlink.citl_nid_sdk.model.FaceMatchRequest;
 import com.commlink.citl_nid_sdk.model.NIDError;
 import com.commlink.citl_nid_sdk.model.NIDInfo;
+import com.commlink.citl_nid_sdk.model.NidEcVerifyResponse;
 import com.commlink.citl_nid_sdk.model.NidFaceVerificationRequest;
 import com.commlink.citl_nid_sdk.model.NidFaceVerificationResponse;
 import com.commlink.citl_nid_sdk.model.NidInfoEntity;
@@ -46,6 +48,7 @@ public class VerificationSummaryActivity extends AppCompatActivity {
     private ActivityVerificationSummaryBinding binding;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private NidInfoEntity currentEntity;
+    private long backPressedTime;
 
     public static void start(Context context) {
         context.startActivity(new Intent(context, VerificationSummaryActivity.class));
@@ -65,11 +68,31 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                 new OnBackPressedCallback(true) {
                     @Override
                     public void handleOnBackPressed() {
-                        Toast.makeText(getApplicationContext(),
-                                "Back disabled during verification",
-                                Toast.LENGTH_SHORT).show();
+                        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+                            showExitConfirmationDialog();
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    "Press back again to exit",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        backPressedTime = System.currentTimeMillis();
                     }
                 });
+    }
+
+    private void showExitConfirmationDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Exit Verification")
+                .setMessage("Are you sure you want to exit the verification process?")
+                .setPositiveButton("Yes", (dialog, which) ->{
+                    Intent intent = new Intent(this, VerificationStepActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("finish", true);
+                    startActivity(intent);
+                    finish();
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
     private void setupUI() {
@@ -134,7 +157,8 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                                         () -> relayResponse(verificationResponse));
                             } else {
                                 if (verificationResponse != null && verificationResponse.getResult() != null) {
-                                    if (verificationResponse.getResult().getIsError() && !verificationResponse.getData().isFaceMatched()) {
+                                    if (verificationResponse.getResult().getIsError()
+                                            && !verificationResponse.getData().isFaceMatched()) {
                                         binding.btnEditSelfie.setVisibility(View.VISIBLE);
                                         showStatusDialog(
                                                 false,
@@ -175,74 +199,70 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                     }
                 });*/
 
-
-
-        ApiClient.getService(this).verifyFace(apiKey, verificationRequest)
-                .enqueue(new Callback<NidFaceVerificationResponse>() {
-                    @Override
-                    public void onResponse(Call<NidFaceVerificationResponse> call, Response<NidFaceVerificationResponse> response) {
-                        dialog.dismiss();
-                        NidFaceVerificationResponse verificationResponse = response.body();
-                        Result<?> result = verificationResponse != null ? verificationResponse.getResult() : null;
-                        int statusCode = result != null && result.getStatusCode() != null ? result.getStatusCode() : response.code();
-                        switch (statusCode) {
-                            case 200:
-                                if (verificationResponse != null &&
-                                        verificationResponse.getData() != null &&
-                                        verificationResponse.getData().isFaceMatched()
-                                ){// Success, face matched
+        ApiClient.getService(this).verifyFace(apiKey, verificationRequest).enqueue(new Callback<NidFaceVerificationResponse>() {
+            @Override
+            public void onResponse(Call<NidFaceVerificationResponse> call, Response<NidFaceVerificationResponse> response) {
+                try {
+                    dialog.dismiss();
+                    NidFaceVerificationResponse verificationResponse = response.body();
+                    Result<?> result = verificationResponse != null ? verificationResponse.getResult() : null;
+                    int statusCode = result != null && result.getStatusCode() != null ? result.getStatusCode() : response.code();
+                    switch (statusCode) {
+                        case 200:
+                            if (verificationResponse != null && verificationResponse.getData() != null) {
+                                if (!verificationResponse.getResult().getIsError() && verificationResponse.getData().isFaceMatched()){
                                     showStatusDialog(
                                             true,
-                                            String.valueOf(statusCode),
-                                            "Face matched successfully. Press OK to view the result",
-                                            () -> relayResponse(verificationResponse)
-                                    );
-                                } else { // Face not matched
+                                            String.valueOf(verificationResponse.result.getStatusCode()),
+                                            "Face verification API called successfully. Press OK to view the result",
+                                            () -> relayResponse(verificationResponse));
+                                } else {
                                     binding.btnEditSelfie.setVisibility(View.VISIBLE);
                                     binding.cvSelfie.setStrokeColor(getResources().getColor(R.color.kyc_error));
-                                    binding.cvSelfie.setStrokeWidth(8);
+                                    binding.cvSelfie.setStrokeWidth(10);
                                     showStatusDialog(
                                             false,
-                                            String.valueOf(statusCode),
-                                             "Face not matched",
+                                            String.valueOf(verificationResponse.getResult().getStatusCode()),
+                                            "Face Not Matched",
                                             () -> {}
                                     );
+                                    //showErrorDialog(String.valueOf(statusCode), "Face Not Matched");
                                 }
-                                break;
+                            } else {
+                                String errorMsg = result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message();
+                                showErrorDialog(String.valueOf(statusCode), errorMsg);
+                            }
+                            break;
 
-                            case 401: // Unauthorized
-                                showStatusDialog(
-                                        false,
-                                        String.valueOf(statusCode),
-                                        result != null && result.getErrorMsg() != null ? result.getErrorMsg() : "Unauthorized",
-                                        () -> {
-                                            Intent intent = new Intent(VerificationSummaryActivity.this, VerificationStepActivity.class);
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                            intent.putExtra("finish", true);
-                                            startActivity(intent);
-                                            finish();
-                                        });
-                                break;
-
-                            default: // Any other error
-                                //showErrorDialog(String.valueOf(statusCode), result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message());
-                                showStatusDialog(
-                                        false,
-                                        String.valueOf(statusCode),
-                                        result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message(),
-                                        () -> {}
-                                );
-                                break;
-                        }
-
+                        case 401: // Unauthorized
+                            showStatusDialog(
+                                    false,
+                                    String.valueOf(statusCode),
+                                    result != null && result.getErrorMsg() != null ? result.getErrorMsg() : "Unauthorized",
+                                    () -> {
+                                        Intent intent = new Intent(VerificationSummaryActivity.this, VerificationStepActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        intent.putExtra("finish", true);
+                                        startActivity(intent);
+                                        finish();
+                                    });
+                            break;
+                        default: // Any other error
+                            String errorMsg1 = result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message();
+                            showErrorDialog(String.valueOf(statusCode), errorMsg1);
+                            break;
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<NidFaceVerificationResponse> call, Throwable t) {
-                        dialog.dismiss();
-                        showErrorDialog(NIDError.E105, "Face Match API failure: " + t.getMessage());
-                    }
-                });
+            @Override
+            public void onFailure(Call<NidFaceVerificationResponse> call, Throwable t) {
+                dialog.dismiss();
+                showErrorDialog("Api Error", t.getMessage());
+            }
+        });
     }
 
     private void relayResponse(NidFaceVerificationResponse response) {
@@ -369,7 +389,7 @@ public class VerificationSummaryActivity extends AppCompatActivity {
         tvErrorCode.setText("Code: " + code);
         tvMessage.setText(message);
 
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton("OK", (dialog, which) -> {
@@ -378,20 +398,10 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                         listener.onPositiveClick();
                     }
                     //finish();
-                });
-
-        /*if (!isSuccess) {
-            builder.setNeutralButton("Retake Selfie", (dialog, which) -> {
-                dialog.dismiss();
-                SelfieActivity.start(this);
-                finish();
-            });
-        }*/
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> {
-            dialog.dismiss();
-        });
-
-        builder.show();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
     }
 }
