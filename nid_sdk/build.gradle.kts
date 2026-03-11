@@ -8,6 +8,8 @@ plugins {
     * use for only project as build library
     * */
     alias(libs.plugins.android.library)
+    `maven-publish`
+
 }
 
 android {
@@ -57,11 +59,27 @@ android {
 
 }
 
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "com.commlink"
+            artifactId = "citl-nid-sdk"
+            version = project.findProperty("sdk_version") as? String ?: "1.0.0"
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
+}
+
+
 // ⚡ Put it HERE, outside android { } block
 // ⚡ Kotlin DSL way to rename AAR
 // Rename the AAR output with version and dynamic date
 //#./gradlew :nid_sdk:assembleRelease
-val sdkVersion = "1.0.0"
+val sdkVersion = project.findProperty("sdk_version") as? String ?: "1.0.0"
+
 val buildDate = SimpleDateFormat("yyyy_MM_dd").format(Date())
 
 tasks.withType<com.android.build.gradle.tasks.BundleAar>().configureEach {
