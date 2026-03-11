@@ -177,13 +177,15 @@ public class LivenessDetector {
         actionSequence.clear();
         actionSequence.add(ActionType.BLINK);
         actionSequence.add(ActionType.SMILE);
+        actionSequence.add(ActionType.TURN_HEAD_LEFT);
+        actionSequence.add(ActionType.TURN_HEAD_RIGHT);
         
         // Randomly choose left or right head turn
-        if (Math.random() > 0.5) {
+        /*if (Math.random() > 0.5) {
             actionSequence.add(ActionType.TURN_HEAD_LEFT);
         } else {
             actionSequence.add(ActionType.TURN_HEAD_RIGHT);
-        }
+        }*/
         
         // Shuffle for random order
         Collections.shuffle(actionSequence);

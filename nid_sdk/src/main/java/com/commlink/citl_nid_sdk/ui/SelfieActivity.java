@@ -63,8 +63,9 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     private boolean isCameraReady = false;
     private boolean isCapturing = false;
 
-    private ProgressBar pbBlink, pbSmile, pbTurn;
-    private ImageView imgBlinkCheck, imgSmileCheck, imgTurnCheck;
+    //private ProgressBar pbBlink, pbSmile, pbTurn;
+    private ProgressBar pbBlink, pbSmile, pbTurnLeft,pbTurnRight;
+    private ImageView imgBlinkCheck, imgSmileCheck, imgTurnLeftCheck,imgTurnRightCheck;
     private LivenessDetector.ActionType currentAction;
     private Animation slideInAnim;
     private long backPressedTime;
@@ -85,11 +86,13 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
 
         pbBlink = findViewById(R.id.pbBlink);
         pbSmile = findViewById(R.id.pbSmile);
-        pbTurn = findViewById(R.id.pbTurn);
+        pbTurnLeft = findViewById(R.id.pbTurnLeft);
+        pbTurnRight = findViewById(R.id.pbTurnRight);
 
         imgBlinkCheck = findViewById(R.id.imgBlinkCheck);
         imgSmileCheck = findViewById(R.id.imgSmileCheck);
-        imgTurnCheck = findViewById(R.id.imgTurnCheck);
+        imgTurnLeftCheck = findViewById(R.id.imgTurnLeftCheck);
+        imgTurnRightCheck = findViewById(R.id.imgTurnRightCheck);
 
         overlayView.setForFace(true);
         cameraExecutor = Executors.newSingleThreadExecutor();
@@ -293,8 +296,10 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                 pbSmile.setProgress(0);
                 break;
             case TURN_HEAD_LEFT:
+                pbTurnLeft.setProgress(0);
+                break;
             case TURN_HEAD_RIGHT:
-                pbTurn.setProgress(0);
+                pbTurnRight.setProgress(0);
                 break;
         }
     }
@@ -317,8 +322,10 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                 pbSmile.setProgress(progressPercent);
                 break;
             case TURN_HEAD_LEFT:
+                pbTurnLeft.setProgress(progressPercent);
+                break;
             case TURN_HEAD_RIGHT:
-                pbTurn.setProgress(progressPercent);
+                pbTurnRight.setProgress(progressPercent);
                 break;
         }
     }
@@ -333,8 +340,10 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
                 imgSmileCheck.setVisibility(visibility);
                 break;
             case TURN_HEAD_LEFT:
+                imgTurnLeftCheck.setVisibility(visibility);
+                break;
             case TURN_HEAD_RIGHT:
-                imgTurnCheck.setVisibility(visibility);
+                imgTurnRightCheck.setVisibility(visibility);
                 break;
         }
     }

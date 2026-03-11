@@ -15,7 +15,8 @@ android {
         applicationId = "com.commlink.nid_sdk_demo"
         minSdk = 24
         targetSdk = 36
-
+        versionCode = 104
+        versionName = "1.0.4"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //consumerProguardFiles("consumer-rules.pro")
     }
@@ -54,7 +55,7 @@ android {
         variant.outputs.all {
             val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
             if (variant.buildType.name == "release") {
-                output.outputFileName = "citl_nid_demo_app_v1.0.3.apk"
+                output.outputFileName = "citl_nid_demo_app_v${versionName}.apk"
             }
         }
     }
