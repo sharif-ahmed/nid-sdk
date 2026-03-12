@@ -121,7 +121,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif"
-                        android:text=""
+                        android:text="National ID (NID) card is required to complete the process."
                         android:textColor="@color/kyc_text_hint"
                         android:textSize="13sp" />
                 </LinearLayout>

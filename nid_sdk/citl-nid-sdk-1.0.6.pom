@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.commlink</groupId>
   <artifactId>citl-nid-sdk</artifactId>
-  <version>1.0.5</version>
+  <version>1.0.6</version>
   <packaging>aar</packaging>
   <dependencies>
     <dependency>
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>androidx.core</groupId>
       <artifactId>core-ktx</artifactId>
-      <version>1.17.0</version>
+      <version>1.16.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -39,7 +39,7 @@
     <dependency>
       <groupId>com.google.android.material</groupId>
       <artifactId>material</artifactId>
-      <version>1.13.0</version>
+      <version>1.12.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

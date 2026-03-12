@@ -14,12 +14,12 @@ plugins {
 
 android {
     namespace = "com.commlink.citl_nid_sdk"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         //applicationId = "com.commlink.citl_nid_sdk"
         minSdk = 24
-        testOptions.targetSdk = 36
+        testOptions.targetSdk = 35
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -43,12 +43,12 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "NID_API_KEY", "\"your_debug_api_key_here\"")
-            buildConfigField("String", "BASE_URL", "\"https://esign.digitalsignature.com.bd:7000/nidverify/\"")
+            buildConfigField("String", "BASE_URL", "\"https://testidentity.digitalsignature.com.bd:7000/identityverify/\"")
         }
         release {
             isMinifyEnabled = false
             buildConfigField("String", "NID_API_KEY", "\"your_release_api_key_here\"")
-            buildConfigField("String", "BASE_URL", "\"https://esign.digitalsignature.com.bd:7000/nidverify/\"")
+            buildConfigField("String", "BASE_URL", "\"https://testidentity.digitalsignature.com.bd:7000/identityverify/\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -15,7 +15,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TokenApiClient {
-    private static final String BASE_URL = "https://esign.digitalsignature.com.bd:7000/nidverify/";
+    private static final String BASE_URL = "https://testidentity.digitalsignature.com.bd:7000/identityverify/";
     private static Retrofit retrofit;
 
     public static Retrofit getClient(Context context) {
