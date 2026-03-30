@@ -15,10 +15,13 @@ android {
         applicationId = "com.commlink.nid_sdk_demo"
         minSdk = 24
         targetSdk = 36
-        versionCode = 106
-        versionName = "1.0.6"
+        versionCode = 107
+        versionName = "1.0.7"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //consumerProguardFiles("consumer-rules.pro")
+        ndk {
+            abiFilters.addAll(listOf("arm64-v8a", "x86_64"))
+        }
     }
 
     buildFeatures {
@@ -48,6 +51,12 @@ android {
             )
         }
 
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 
     applicationVariants.all {
@@ -83,8 +92,6 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.play.services.mlkit.text.recognition)
     implementation(libs.face.detection)
-    implementation(libs.tensorflow.lite)
-    implementation(libs.tensorflow.lite.support)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)

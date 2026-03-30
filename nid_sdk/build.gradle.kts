@@ -23,6 +23,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        
+        ndk {
+            abiFilters.add("arm64-v8a")
+            abiFilters.add("x86_64")
+        }
     }
 
     buildFeatures {
@@ -102,8 +107,6 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.play.services.mlkit.text.recognition)
     implementation(libs.face.detection)
-    implementation(libs.tensorflow.lite)
-    implementation(libs.tensorflow.lite.support)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
