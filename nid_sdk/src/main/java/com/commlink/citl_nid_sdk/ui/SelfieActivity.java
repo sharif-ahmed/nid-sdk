@@ -63,9 +63,9 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
     private boolean isCameraReady = false;
     private boolean isCapturing = false;
 
-    //private ProgressBar pbBlink, pbSmile, pbTurn;
-    private ProgressBar pbBlink, pbSmile, pbTurnLeft,pbTurnRight;
-    private ImageView imgBlinkCheck, imgSmileCheck, imgTurnLeftCheck,imgTurnRightCheck;
+    // private ProgressBar pbBlink, pbSmile, pbTurn;
+    private ProgressBar pbBlink, pbSmile, pbTurnLeft, pbTurnRight;
+    private ImageView imgBlinkCheck, imgSmileCheck, imgTurnLeftCheck, imgTurnRightCheck;
     private LivenessDetector.ActionType currentAction;
     private Animation slideInAnim;
     private long backPressedTime;
@@ -246,7 +246,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
 
                     if (canCapture && !isCapturing) {
                         isCapturing = true;
-                        new Handler().postDelayed(this::captureSelfie,100L);
+                        new Handler().postDelayed(this::captureSelfie, 100L);
                     }
                 });
                 imageProxy.close();

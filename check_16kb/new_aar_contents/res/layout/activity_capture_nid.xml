@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/nid_background">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.commlink.citl_nid_sdk.ui.OverlayView
+        android:id="@+id/overlayView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+      />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_gravity="top">
+
+        <TextView
+            android:id="@+id/instructionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nid_capture_instruction"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:padding="8dp" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/captureButton"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/nid_capture_button_bg"
+        android:contentDescription="@string/nid_capture_btn"
+        app:tint="@android:color/white" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+

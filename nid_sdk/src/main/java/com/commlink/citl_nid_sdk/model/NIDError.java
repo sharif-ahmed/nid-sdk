@@ -9,7 +9,9 @@ public class NIDError {
         OCR_ERROR,
         LIVENESS_FAILED,
         FACE_MATCH_FAILED,
+        EMPTY_DATA_ERROR,
         NETWORK_ERROR,
+        USER_CANCELLED,
         UNKNOWN
     }
 
@@ -20,6 +22,7 @@ public class NIDError {
     public static final String E103 = "E103"; // Liveliness Failed
     public static final String E104 = "E104"; // Face Match Failed
     public static final String E105 = "E105"; // Face Match API Timeout
+    public static final String E106 = "E106"; // Face Match API Timeout
     public static final String E500 = "E500"; // Unexpected SDK Error
 
     private final Code code;

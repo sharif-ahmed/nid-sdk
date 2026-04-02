@@ -15,8 +15,8 @@ android {
         applicationId = "com.commlink.nid_sdk_demo"
         minSdk = 24
         targetSdk = 36
-        versionCode = 107
-        versionName = "1.0.7"
+        versionCode = 109
+        versionName = "1.0.9"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //consumerProguardFiles("consumer-rules.pro")
         ndk {

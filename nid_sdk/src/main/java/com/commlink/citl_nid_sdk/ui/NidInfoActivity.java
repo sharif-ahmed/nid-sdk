@@ -432,6 +432,11 @@ public class NidInfoActivity extends AppCompatActivity {
                                     String.valueOf(statusCode),
                                     result != null && result.getErrorMsg() != null ? result.getErrorMsg() : "Unauthorized",
                                     () -> {
+                                        com.commlink.citl_nid_sdk.core.NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                                        if (cb != null) {
+                                            cb.onError(new com.commlink.citl_nid_sdk.model.NIDError(com.commlink.citl_nid_sdk.model.NIDError.Code.NETWORK_ERROR, "Unauthorized API Error"));
+                                        }
+                                        CallbackHolder.getInstance().clear();
                                         Intent intent = new Intent(NidInfoActivity.this, VerificationStepActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                         intent.putExtra("finish", true);
@@ -452,7 +457,22 @@ public class NidInfoActivity extends AppCompatActivity {
 
                         default: // Any other error
                             String errorMsg1 = result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message();
-                            showErrorDialog(String.valueOf(statusCode), errorMsg1);
+                            showStatusDialog(
+                                    false,
+                                    String.valueOf(statusCode),
+                                    errorMsg1,
+                                    () -> {
+                                        com.commlink.citl_nid_sdk.core.NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                                        if (cb != null) {
+                                            cb.onError(new com.commlink.citl_nid_sdk.model.NIDError(com.commlink.citl_nid_sdk.model.NIDError.Code.NETWORK_ERROR, "API Error: " + errorMsg1, com.commlink.citl_nid_sdk.model.NIDError.E102));
+                                        }
+                                        CallbackHolder.getInstance().clear();
+                                        Intent intent = new Intent(NidInfoActivity.this, VerificationStepActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        intent.putExtra("finish", true);
+                                        startActivity(intent);
+                                        finish();
+                                    });
                             break;
                     }
                 } catch (Exception e) {
@@ -463,7 +483,23 @@ public class NidInfoActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<NidEcVerifyResponse> call, Throwable t) {
                 dialog.dismiss();
-                showErrorDialog("Api Error", t.getMessage());
+                showStatusDialog(
+                        false,
+                        "Error",
+                        t.getMessage(),
+                        () -> {
+                            com.commlink.citl_nid_sdk.core.NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                            if (cb != null) {
+                                cb.onError(new com.commlink.citl_nid_sdk.model.NIDError(com.commlink.citl_nid_sdk.model.NIDError.Code.NETWORK_ERROR, "API Timeout/Failure", com.commlink.citl_nid_sdk.model.NIDError.E102));
+                            }
+                            CallbackHolder.getInstance().clear();
+                            Intent intent = new Intent(NidInfoActivity.this, VerificationStepActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            intent.putExtra("finish", true);
+                            startActivity(intent);
+                            finish();
+                        }
+                );
             }
         });
     }
@@ -639,7 +675,7 @@ public class NidInfoActivity extends AppCompatActivity {
         tvErrorCode.setText("Code: " + code);
         tvMessage.setText(message);
 
-        new MaterialAlertDialogBuilder(this)
+        /*new MaterialAlertDialogBuilder(this)
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton("OK", (dialog, which) -> {
@@ -652,7 +688,23 @@ public class NidInfoActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", (dialog, which) -> {
                     dialog.dismiss();
                 })
-                .show();
+                .show();*/
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setView(view)
+                .setCancelable(false)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss();
+                    if (listener != null) {
+                        listener.onPositiveClick();
+                    }
+                    finish();
+                });
+
+        // Only add negative button if NOT success
+        if (!isSuccess) {
+            builder.setNegativeButton("Retry", (dialog, which) -> dialog.dismiss());
+        }
+        builder.show();
     }
 
     @Override

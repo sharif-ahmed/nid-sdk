@@ -70,8 +70,12 @@ public class MainActivity extends AppCompatActivity {
                 android.util.Log.e("MainActivity", "onError: " + error.getMessage());
                 runOnUiThread(() -> {
                     Toast.makeText(MainActivity.this,
-                            "Error: " + error.getMessage(),
+                            "Error: [" + error.getCustomErrorCode() + "] " + error.getMessage(),
                             Toast.LENGTH_LONG).show();
+                    if (NIDError.E104.equals(error.getCustomErrorCode())) {
+                        binding.cardStart.setVisibility(View.VISIBLE);
+                        binding.layoutResult.setVisibility(View.GONE);
+                    }
                 });
             }
         });

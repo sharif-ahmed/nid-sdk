@@ -117,6 +117,14 @@ public class ResultActivity extends AppCompatActivity {
             NIDCallback cb = CallbackHolder.getInstance().getCallback();
             if (cb != null) {
                 cb.onSuccess(nidInfo);
+                /*if (nidInfo != null && nidInfo.isFaceMatched()) {
+                    cb.onSuccess(nidInfo);
+                } else {
+                    cb.onError(new com.commlink.citl_nid_sdk.model.NIDError(
+                            com.commlink.citl_nid_sdk.model.NIDError.Code.FACE_MATCH_FAILED,
+                            "Verification Failed",
+                            com.commlink.citl_nid_sdk.model.NIDError.E104));
+                }*/
             }
             // Clear high-level callback
             CallbackHolder.getInstance().clear();

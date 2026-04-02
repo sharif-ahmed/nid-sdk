@@ -117,6 +117,12 @@ public class VerificationStepActivity extends AppCompatActivity {
         super.onDestroy();
         executor.shutdown();
         if (isFinishing()) {
+            com.commlink.citl_nid_sdk.core.NIDCallback cb = CallbackHolder.getInstance().getCallback();
+            if (cb != null) {
+                cb.onError(new com.commlink.citl_nid_sdk.model.NIDError(
+                        com.commlink.citl_nid_sdk.model.NIDError.Code.USER_CANCELLED, 
+                        "Verification cancelled or closed by user"));
+            }
             CallbackHolder.getInstance().clear();
         }
         binding = null;

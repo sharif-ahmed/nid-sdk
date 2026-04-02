@@ -206,8 +206,31 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                     dialog.dismiss();
                     NidFaceVerificationResponse verificationResponse = response.body();
                     Result<?> result = verificationResponse != null ? verificationResponse.getResult() : null;
+                    String error_Msg = result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message();
                     int statusCode = result != null && result.getStatusCode() != null ? result.getStatusCode() : response.code();
                     switch (statusCode) {
+                        case 1:
+                            binding.btnEditSelfie.setVisibility(View.VISIBLE);
+                            binding.cvSelfie.setStrokeColor(getResources().getColor(R.color.kyc_error));
+                            binding.cvSelfie.setStrokeWidth(10);
+                            showStatusDialog(
+                                    false,
+                                    String.valueOf(statusCode),
+                                    error_Msg,
+                                    () -> {
+                                        NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                                        if (cb != null) {
+                                            cb.onError(new NIDError(NIDError.Code.FACE_MATCH_FAILED, "Face Verification Failed", NIDError.E104));
+                                        }
+                                        CallbackHolder.getInstance().clear();
+                                        Intent intent = new Intent(VerificationSummaryActivity.this, VerificationStepActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        intent.putExtra("finish", true);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                            );
+                            break;
                         case 200:
                             if (verificationResponse != null && verificationResponse.getData() != null) {
                                 if (!verificationResponse.getResult().getIsError() && verificationResponse.getData().isFaceMatched()){
@@ -224,13 +247,41 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                                             false,
                                             String.valueOf(verificationResponse.getResult().getStatusCode()),
                                             "Face Not Matched",
-                                            () -> {}
+                                            () -> {
+                                                NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                                                if (cb != null) {
+                                                    cb.onError(new NIDError(NIDError.Code.FACE_MATCH_FAILED, "Face Verification Failed", NIDError.E104));
+                                                }
+                                                CallbackHolder.getInstance().clear();
+                                                Intent intent = new Intent(VerificationSummaryActivity.this, VerificationStepActivity.class);
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                intent.putExtra("finish", true);
+                                                startActivity(intent);
+                                                finish();
+                                            }
                                     );
                                     //showErrorDialog(String.valueOf(statusCode), "Face Not Matched");
                                 }
                             } else {
                                 String errorMsg = result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message();
-                                showErrorDialog(String.valueOf(statusCode), errorMsg);
+                                //showErrorDialog(String.valueOf(statusCode), errorMsg);
+                                showStatusDialog(
+                                        false,
+                                        String.valueOf(statusCode),
+                                        errorMsg,
+                                        () -> {
+                                            NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                                            if (cb != null) {
+                                                cb.onError(new NIDError(NIDError.Code.EMPTY_DATA_ERROR, errorMsg, NIDError.E106));
+                                            }
+                                            CallbackHolder.getInstance().clear();
+                                            Intent intent = new Intent(VerificationSummaryActivity.this, VerificationStepActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                            intent.putExtra("finish", true);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                );
                             }
                             break;
 
@@ -240,6 +291,11 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                                     String.valueOf(statusCode),
                                     result != null && result.getErrorMsg() != null ? result.getErrorMsg() : "Unauthorized",
                                     () -> {
+                                        com.commlink.citl_nid_sdk.core.NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                                        if (cb != null) {
+                                            cb.onError(new com.commlink.citl_nid_sdk.model.NIDError(com.commlink.citl_nid_sdk.model.NIDError.Code.NETWORK_ERROR, "Unauthorized API Error"));
+                                        }
+                                        CallbackHolder.getInstance().clear();
                                         Intent intent = new Intent(VerificationSummaryActivity.this, VerificationStepActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                         intent.putExtra("finish", true);
@@ -249,7 +305,22 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                             break;
                         default: // Any other error
                             String errorMsg1 = result != null && result.getErrorMsg() != null ? result.getErrorMsg() : response.message();
-                            showErrorDialog(String.valueOf(statusCode), errorMsg1);
+                            showStatusDialog(
+                                    false,
+                                    String.valueOf(statusCode),
+                                    errorMsg1,
+                                    () -> {
+                                        com.commlink.citl_nid_sdk.core.NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                                        if (cb != null) {
+                                            cb.onError(new com.commlink.citl_nid_sdk.model.NIDError(com.commlink.citl_nid_sdk.model.NIDError.Code.NETWORK_ERROR, "API Error: " + errorMsg1, com.commlink.citl_nid_sdk.model.NIDError.E105));
+                                        }
+                                        CallbackHolder.getInstance().clear();
+                                        Intent intent = new Intent(VerificationSummaryActivity.this, VerificationStepActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        intent.putExtra("finish", true);
+                                        startActivity(intent);
+                                        finish();
+                                    });
                             break;
                     }
                 } catch (Exception e) {
@@ -260,7 +331,23 @@ public class VerificationSummaryActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<NidFaceVerificationResponse> call, Throwable t) {
                 dialog.dismiss();
-                showErrorDialog("Api Error", t.getMessage());
+                showStatusDialog(
+                        false,
+                        "Error",
+                        t.getMessage(),
+                        () -> {
+                            com.commlink.citl_nid_sdk.core.NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                            if (cb != null) {
+                                cb.onError(new com.commlink.citl_nid_sdk.model.NIDError(com.commlink.citl_nid_sdk.model.NIDError.Code.NETWORK_ERROR, "API Timeout/Failure", com.commlink.citl_nid_sdk.model.NIDError.E105));
+                            }
+                            CallbackHolder.getInstance().clear();
+                            Intent intent = new Intent(VerificationSummaryActivity.this, VerificationStepActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            intent.putExtra("finish", true);
+                            startActivity(intent);
+                            finish();
+                        }
+                );
             }
         });
     }
@@ -413,7 +500,7 @@ public class VerificationSummaryActivity extends AppCompatActivity {
         tvErrorCode.setText("Code: " + code);
         tvMessage.setText(message);
 
-        new MaterialAlertDialogBuilder(this)
+        /*new MaterialAlertDialogBuilder(this)
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton("OK", (dialog, which) -> {
@@ -423,9 +510,25 @@ public class VerificationSummaryActivity extends AppCompatActivity {
                     }
                     //finish();
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {
+                .setNegativeButton(
+                        isSuccess ? "Cancel" : "Retry",
+                        (dialog, which) -> dialog.dismiss())
+                .show();*/
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setView(view)
+                .setCancelable(false)
+                .setPositiveButton("OK", (dialog, which) -> {
                     dialog.dismiss();
-                })
-                .show();
+                    if (listener != null) {
+                        listener.onPositiveClick();
+                    }
+                });
+
+        // Only add negative button if NOT success
+        if (!isSuccess) {
+            builder.setNegativeButton("Retry", (dialog, which) -> dialog.dismiss());
+        }
+        builder.show();
     }
 }
