@@ -22,7 +22,7 @@ public class NIDError {
     public static final String E103 = "E103"; // Liveliness Failed
     public static final String E104 = "E104"; // Face Match Failed
     public static final String E105 = "E105"; // Face Match API Timeout
-    public static final String E106 = "E106"; // Face Match API Timeout
+    public static final String E106 = "E106"; // Empty Data From API
     public static final String E500 = "E500"; // Unexpected SDK Error
 
     private final Code code;

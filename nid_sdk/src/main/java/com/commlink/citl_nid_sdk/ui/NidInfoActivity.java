@@ -415,14 +415,24 @@ public class NidInfoActivity extends AppCompatActivity {
                                     }
                                 }
                             } else {
-                                if (ecVerifyResponse != null && ecVerifyResponse.getResult() != null && ecVerifyResponse.getResult().getIsError()) {
-                                    showStatusDialog(
-                                            false,
-                                            String.valueOf(statusCode),
-                                            ecVerifyResponse.getResult().getErrorMsg(),
-                                            () -> {}
-                                    );
-                                }
+                                String errorMsg = result != null && result.getErrorMsg() != null ? result.getErrorMsg() : "Empty Response from Server";
+                                showStatusDialog(
+                                        false,
+                                        String.valueOf(statusCode),
+                                        errorMsg,
+                                        () -> {
+                                            com.commlink.citl_nid_sdk.core.NIDCallback cb = CallbackHolder.getInstance().getCallback();
+                                            if (cb != null) {
+                                                cb.onError(new com.commlink.citl_nid_sdk.model.NIDError(com.commlink.citl_nid_sdk.model.NIDError.Code.EMPTY_DATA_ERROR, errorMsg, com.commlink.citl_nid_sdk.model.NIDError.E106));
+                                            }
+                                            CallbackHolder.getInstance().clear();
+                                            Intent intent = new Intent(NidInfoActivity.this, VerificationStepActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                            intent.putExtra("finish", true);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                );
                             }
                             break;
 
