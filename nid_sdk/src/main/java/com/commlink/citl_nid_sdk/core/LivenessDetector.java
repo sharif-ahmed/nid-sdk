@@ -175,22 +175,17 @@ public class LivenessDetector {
      */
     public void generateRandomActionSequence() {
         actionSequence.clear();
-        actionSequence.add(ActionType.BLINK);
+
+        List<ActionType> prepActions = new ArrayList<>();
+        prepActions.add(ActionType.BLINK);
+        prepActions.add(ActionType.TURN_HEAD_LEFT);
+        prepActions.add(ActionType.TURN_HEAD_RIGHT);
+
+        Collections.shuffle(prepActions);
+        actionSequence.addAll(prepActions);
+
+        // Final actions
         actionSequence.add(ActionType.SMILE);
-        actionSequence.add(ActionType.TURN_HEAD_LEFT);
-        actionSequence.add(ActionType.TURN_HEAD_RIGHT);
-        
-        // Randomly choose left or right head turn
-        /*if (Math.random() > 0.5) {
-            actionSequence.add(ActionType.TURN_HEAD_LEFT);
-        } else {
-            actionSequence.add(ActionType.TURN_HEAD_RIGHT);
-        }*/
-        
-        // Shuffle for random order
-        Collections.shuffle(actionSequence);
-        
-        // Reset state
         currentActionIndex = 0;
         state = new LivenessState();
     }
