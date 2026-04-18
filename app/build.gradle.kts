@@ -20,7 +20,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //consumerProguardFiles("consumer-rules.pro")
         ndk {
-            abiFilters.addAll(listOf("arm64-v8a", "x86_64"))
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            // Point to the JKS file found in your project
+            storeFile = file("../nid_sdk/citl_nid_sdk.jks")
+            storePassword = "citl@123$.." // Replace with your password
+            keyAlias = "key0"             // Replace with your alias
+            keyPassword = "citl@123$.."   // Replace with your password
         }
     }
 
@@ -45,6 +55,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

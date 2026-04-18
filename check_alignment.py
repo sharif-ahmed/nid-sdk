@@ -49,7 +49,7 @@ def check_alignment(file_path):
         else:
             print(f"Result: FAIL (Aligned to {max_align})")
 
-apk_lib_dir = "check_16kb/final_app_contents/lib/arm64-v8a"
+apk_lib_dir = "app/src/main/jniLibs/arm64-v8a"
 for filename in os.listdir(apk_lib_dir):
     if filename.endswith(".so"):
         check_alignment(os.path.join(apk_lib_dir, filename))

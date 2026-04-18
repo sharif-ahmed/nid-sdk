@@ -246,7 +246,8 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
 
                     if (canCapture && !isCapturing) {
                         isCapturing = true;
-                        new Handler().postDelayed(this::captureSelfie, 100L);
+                        //new Handler().postDelayed(this::captureSelfie, 100L);
+                        captureSelfie();
                     }
                 });
                 imageProxy.close();
