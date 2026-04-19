@@ -100,6 +100,12 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
         livenessDetector.setProgressCallback(this);
 
         captureButton.setEnabled(false);
+        overlayView.post(() -> {
+            if (livenessDetector != null && overlayView.getFocusRect() != null) {
+                livenessDetector.setTargetViewSize(overlayView.getWidth(), overlayView.getHeight());
+                livenessDetector.setOvalGuideBounds(overlayView.getFocusRect());
+            }
+        });
 
         if (CameraPermissionHelper.hasCameraPermission(this)) {
             startCamera();
@@ -311,6 +317,36 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
             livenessPassed = true;
             // Instruction and button state will be managed by analyzeLiveness/face check
         });
+    }
+
+    @Override
+    public void onStepTimeout(LivenessDetector.ActionType action) {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Liveliness Step Timed out! Starting over..", Toast.LENGTH_SHORT).show();
+            resetLivenessUI();
+        });
+    }
+
+    private void resetLivenessUI() {
+        livenessPassed = false;
+        isCapturing = false;
+        
+        // Reset Progress Bars
+        pbBlink.setProgress(0);
+        pbSmile.setProgress(0);
+        pbTurnLeft.setProgress(0);
+        pbTurnRight.setProgress(0);
+        
+        // Hide Checkmarks
+        imgBlinkCheck.setVisibility(View.INVISIBLE);
+        imgSmileCheck.setVisibility(View.INVISIBLE);
+        imgTurnLeftCheck.setVisibility(View.INVISIBLE);
+        imgTurnRightCheck.setVisibility(View.INVISIBLE);
+        
+        // Reset Instruction
+        instruction.setText(livenessDetector.getCurrentInstruction());
+        instruction.setBackgroundResource(R.drawable.bg_instruction_rounded);
+        overlayView.setOvalProgress(0f);
     }
 
     private void updateProgressBar(LivenessDetector.ActionType action, float progress) {

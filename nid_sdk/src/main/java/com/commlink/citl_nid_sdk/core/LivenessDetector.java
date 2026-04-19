@@ -67,6 +67,12 @@ public class LivenessDetector {
          * Called when all actions are completed
          */
         void onAllActionsCompleted();
+
+        /**
+         * Called when a step takes too long
+         * @param action The action that timed out
+         */
+        void onStepTimeout(ActionType action);
     }
 
     /**
@@ -108,11 +114,13 @@ public class LivenessDetector {
     }
 
     // Constants
-    private static final float PROGRESS_INTERPOLATION_FACTOR = 0.1f;
-    private static final float BLINK_THRESHOLD = 0.2f;
-    private static final float SMILE_THRESHOLD = 0.7f;
-    private static final float HEAD_TURN_THRESHOLD = 20.0f;
-    private static final float HEAD_TURN_MAX_ANGLE = 25.0f;
+    private static final float PROGRESS_INTERPOLATION_FACTOR = 0.4f; // Faster feedback
+    private static final float BLINK_THRESHOLD = 0.18f; // Stricter blink
+    private static final float SMILE_THRESHOLD = 0.75f; // Stricter smile
+    private static final float HEAD_TURN_THRESHOLD = 22.0f; // Stricter turn
+    private static final float HEAD_TURN_MAX_ANGLE = 28.0f; 
+    private static final float MIN_FACE_SIZE_PERCENT = 0.4f; // Face must take at least 40% of oval height
+    private static final long STEP_TIMEOUT_MS = 10000; // 10 seconds per step
 
     // ML Kit Face Detector
     private final FaceDetector detector;
@@ -121,6 +129,9 @@ public class LivenessDetector {
     private LivenessState state = new LivenessState();
     private List<ActionType> actionSequence = new ArrayList<>();
     private int currentActionIndex = 0;
+    private boolean isWaitingForNeutral = false;
+    private long neutralStartTime = -1;
+    private long lastStepStartTime = -1;
     
     // Callbacks
     private ActionProgressCallback progressCallback;
@@ -128,6 +139,8 @@ public class LivenessDetector {
     
     // Face guide oval bounds (set by UI)
     private RectF ovalGuideBounds = null;
+    private int targetViewWidth = 0;
+    private int targetViewHeight = 0;
     private boolean faceInOval = true; // Default to true so it doesn't block if bounds aren't set
     private float guideProgress = 0f;
     private boolean isLastBlinkStateClosed = false;
@@ -170,6 +183,14 @@ public class LivenessDetector {
     }
 
     /**
+     * Set the target view size for coordinate mapping
+     */
+    public void setTargetViewSize(int width, int height) {
+        this.targetViewWidth = width;
+        this.targetViewHeight = height;
+    }
+
+    /**
      * Generate random action sequence
      * Always includes: BLINK, SMILE, and one HEAD_TURN (left or right)
      */
@@ -184,9 +205,12 @@ public class LivenessDetector {
         Collections.shuffle(prepActions);
         actionSequence.addAll(prepActions);
 
-        // Final actions
+        // Final actions - SMILE is always last
         actionSequence.add(ActionType.SMILE);
+        
         currentActionIndex = 0;
+        isWaitingForNeutral = false;
+        lastStepStartTime = -1;
         state = new LivenessState();
     }
 
@@ -219,7 +243,7 @@ public class LivenessDetector {
     public String getCurrentInstruction() {
         ActionType current = getCurrentAction();
         if (current == null) {
-            return "Liveness verification completed!";
+            return "Liveliness verification completed!";
         }
         
         switch (current) {
@@ -303,8 +327,8 @@ public class LivenessDetector {
                         return;
                     }
 
-                    // Process face for liveness detection
-                    processFace(faces);
+                    // Process face for liveness detection with image dimensions for scaling
+                    processFace(faces, image.getWidth(), image.getHeight());
 
                     // Update result
                     result.isLive = isLivenessCompleted();
@@ -331,7 +355,7 @@ public class LivenessDetector {
      * @return Updated LivenessState
      */
     @NonNull
-    public LivenessState processFace(@NonNull List<Face> faces) {
+    public LivenessState processFace(@NonNull List<Face> faces, int imageWidth, int imageHeight) {
         if (faces.isEmpty()) {
             return state;
         }
@@ -339,7 +363,20 @@ public class LivenessDetector {
         Face face = faces.get(0);
         
         // Detect face position relative to oval guide always if face is detected
-        detectFaceInOval(face);
+        detectFaceInOval(face, imageWidth, imageHeight);
+
+        // Check for step timeout
+        if (lastStepStartTime == -1) {
+            lastStepStartTime = System.currentTimeMillis();
+        } else if (System.currentTimeMillis() - lastStepStartTime > STEP_TIMEOUT_MS) {
+            // Automatic Reset on Timeout
+            ActionType timedOutAction = getCurrentAction();
+            generateRandomActionSequence(); // Re-randomize and go to first
+            if (progressCallback != null) {
+                progressCallback.onStepTimeout(timedOutAction);
+            }
+            return state;
+        }
 
         // Check if all actions completed
         if (currentActionIndex >= actionSequence.size()) {
@@ -353,6 +390,9 @@ public class LivenessDetector {
         boolean actionCompleted = false;
 
         if (faceInOval) {
+            // Neutral check removed for instant transitions
+
+
             switch (currentAction) {
                 case BLINK:
                     detectBlink(face);
@@ -409,8 +449,9 @@ public class LivenessDetector {
                 progressCallback.onActionCompleted(currentAction);
             }
 
-            // Move to next action
+            // Advance immediately to next action
             currentActionIndex++;
+            lastStepStartTime = System.currentTimeMillis(); // Reset timer for next action
 
             // Check if all actions completed
             if (currentActionIndex >= actionSequence.size()) {
@@ -516,23 +557,54 @@ public class LivenessDetector {
     }
 
     /**
+     * Detect if face is in neutral position (looking straight, not smiling)
+     */
+    private boolean detectNeutral(@NonNull Face face) {
+        float angleY = Math.abs(face.getHeadEulerAngleY());
+        float angleX = Math.abs(face.getHeadEulerAngleX());
+        float angleZ = Math.abs(face.getHeadEulerAngleZ());
+        Float smileProb = face.getSmilingProbability();
+        
+        // Neutral means: Y angle < 8, X angle < 8, Z angle < 8, Smile < 0.3
+        boolean anglesNeutral = angleY < 8.0f && angleX < 12.0f && angleZ < 10.0f;
+        boolean smileNeutral = smileProb == null || smileProb < 0.3f;
+        
+        return anglesNeutral && smileNeutral;
+    }
+
+    /**
      * Detect if face bounding box is inside oval guide
      * @param face Detected face
      */
-    private void detectFaceInOval(@NonNull Face face) {
-        if (ovalGuideBounds == null) {
+    private void detectFaceInOval(@NonNull Face face, int imageWidth, int imageHeight) {
+        if (ovalGuideBounds == null || targetViewWidth <= 0 || targetViewHeight <= 0) {
             return;
         }
         
         android.graphics.Rect boundingBox = face.getBoundingBox();
         RectF faceRect = new RectF(boundingBox);
         
-        // Check if face center is inside oval bounds
-        float faceCenterX = faceRect.centerX();
-        float faceCenterY = faceRect.centerY();
+        // Map face coordinates from image space to view space using Center-Crop logic
+        // This accounts for the fact that the camera frame is scaled and cropped to fill the screen
+        float scale = Math.max((float) targetViewWidth / imageWidth, (float) targetViewHeight / imageHeight);
+        float offsetX = (imageWidth * scale - targetViewWidth) / 2f;
+        float offsetY = (imageHeight * scale - targetViewHeight) / 2f;
         
-        // Simple rectangular check (can be enhanced with actual oval math)
-        boolean inBounds = ovalGuideBounds.contains(faceCenterX, faceCenterY);
+        RectF mappedFaceRect = new RectF(
+            faceRect.left * scale - offsetX,
+            faceRect.top * scale - offsetY,
+            faceRect.right * scale - offsetX,
+            faceRect.bottom * scale - offsetY
+        );
+
+        // Check if face center is inside oval bounds
+        float faceCenterX = mappedFaceRect.centerX();
+        float faceCenterY = mappedFaceRect.centerY();
+        
+        // Use a much larger internal area for the check to be extremely forgiving
+        RectF expandedOval = new RectF(ovalGuideBounds);
+        expandedOval.inset(-ovalGuideBounds.width() * 0.25f, -ovalGuideBounds.height() * 0.25f);
+        boolean inBounds = expandedOval.contains(faceCenterX, faceCenterY);
         
         // Calculate alignment progress based on how centered the face is
         float centerX = ovalGuideBounds.centerX();
@@ -541,8 +613,8 @@ public class LivenessDetector {
         float distanceX = Math.abs(faceCenterX - centerX);
         float distanceY = Math.abs(faceCenterY - centerY);
         
-        float maxDistanceX = ovalGuideBounds.width() / 2.0f;
-        float maxDistanceY = ovalGuideBounds.height() / 2.0f;
+        float maxDistanceX = ovalGuideBounds.width(); // Fully lenient distance check
+        float maxDistanceY = ovalGuideBounds.height(); 
         
         float progressX = Math.max(0.0f, 1.0f - (distanceX / maxDistanceX));
         float progressY = Math.max(0.0f, 1.0f - (distanceY / maxDistanceY));
@@ -552,9 +624,14 @@ public class LivenessDetector {
         // Smooth interpolation
         guideProgress = interpolateProgress(guideProgress, newGuideProgress);
         
-        // Update state only if bounds are present
+        // Face Size Check: Relaxed signficantly
+        float faceHeight = mappedFaceRect.height();
+        float ovalHeight = ovalGuideBounds.height();
+        boolean sizeOk = (faceHeight / ovalHeight) >= 0.15f; // Very low threshold (15%)
+        
+        // Update state - Only require being in bounds and basic size
         boolean wasInOval = faceInOval;
-        faceInOval = inBounds && guideProgress > 0.5f; // Slightly more lenient threshold (0.5 instead of 0.7)
+        faceInOval = inBounds && sizeOk; 
         
         // Notify callback if state changed
         if (guideCallback != null && (wasInOval != faceInOval || Math.abs(guideProgress - newGuideProgress) > 0.05f)) {
