@@ -19,6 +19,7 @@ retrofit = "3.0.0"
 roomRuntime = "2.8.4"
 roomCompiler = "2.8.4"
 ucrop = "2.2.11"
+tensorflowLite = "2.14.0"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
@@ -43,6 +44,9 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 
 text-recognition-devanagari = { module = "com.google.android.gms:play-services-mlkit-text-recognition-devanagari", version.ref = "playServicesTextRecognitionDevanagari" }
 ucrop = { module = "com.github.yalantis:ucrop", version.ref = "ucrop" }
+tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflowLite" }
+tensorflow-lite-gpu = { module = "org.tensorflow:tensorflow-lite-gpu", version.ref = "tensorflowLite" }
+tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version = "0.4.4" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

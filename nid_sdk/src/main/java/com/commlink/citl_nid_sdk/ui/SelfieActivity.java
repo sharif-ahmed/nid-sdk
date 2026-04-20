@@ -96,7 +96,7 @@ public class SelfieActivity extends AppCompatActivity implements LivenessDetecto
 
         overlayView.setForFace(true);
         cameraExecutor = Executors.newSingleThreadExecutor();
-        livenessDetector = new LivenessDetector();
+        livenessDetector = new LivenessDetector(this);
         livenessDetector.setProgressCallback(this);
 
         captureButton.setEnabled(false);

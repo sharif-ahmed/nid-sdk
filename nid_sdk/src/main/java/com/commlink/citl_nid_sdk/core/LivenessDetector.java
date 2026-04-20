@@ -12,6 +12,13 @@ import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
+import com.commlink.citl_nid_sdk.core.FaceAntiSpoofing;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.util.Log;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -144,19 +151,30 @@ public class LivenessDetector {
     private boolean faceInOval = true; // Default to true so it doesn't block if bounds aren't set
     private float guideProgress = 0f;
     private boolean isLastBlinkStateClosed = false;
+    
+    // Passive Liveness (Anti-Spoofing)
+    private FaceAntiSpoofing antiSpoofing;
+    private boolean spoofDetected = false;
+    private long lastAntiSpoofCheck = 0;
+    private static final long ANTI_SPOOF_INTERVAL = 1500; // Check every 1.5 seconds to save battery
 
     /**
      * Constructor - Initializes ML Kit Face Detector and generates random action sequence
      */
-    public LivenessDetector() {
+    public LivenessDetector(@Nullable Context context) {
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
-                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-                .setMinFaceSize(0.15f)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .setMinFaceSize(0.20f)
                 .enableTracking()
                 .build();
-        detector = com.google.mlkit.vision.face.FaceDetection.getClient(options);
+        this.detector = com.google.mlkit.vision.face.FaceDetection.getClient(options);
+        
+        if (context != null) {
+            this.antiSpoofing = new FaceAntiSpoofing(context);
+        }
+        
         generateRandomActionSequence();
     }
 
@@ -323,6 +341,32 @@ public class LivenessDetector {
                         result.isLive = false;
                         result.failureReason = "No face detected";
                         result.faces = faces;
+                        callback.onResult(result);
+                        return;
+                    }
+
+                    Face mainFace = faces.get(0);
+
+                    // Passive Liveness Check (Anti-Spoofing)
+                    if (antiSpoofing != null && System.currentTimeMillis() - lastAntiSpoofCheck > ANTI_SPOOF_INTERVAL) {
+                        lastAntiSpoofCheck = System.currentTimeMillis();
+                        try {
+                            Bitmap faceBitmap = cropFaceFromImage(image, mainFace);
+                            if (faceBitmap != null) {
+                                float score = antiSpoofing.analyzeLiveness(faceBitmap);
+                                if (score < 0.6f) { // Threshold for spoof detection
+                                    spoofDetected = true;
+                                    Log.w("LivenessDetector", "Spoof detected! Score: " + score);
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.e("LivenessDetector", "Anti-spoofing error: " + e.getMessage());
+                        }
+                    }
+
+                    if (spoofDetected) {
+                        result.isLive = false;
+                        result.failureReason = "Spoof attack detected! Please use a real face.";
                         callback.onResult(result);
                         return;
                     }
@@ -679,10 +723,41 @@ public class LivenessDetector {
     }
 
     /**
+     * Crop the face area from the InputImage for anti-spoofing analysis.
+     */
+    private Bitmap cropFaceFromImage(InputImage image, Face face) {
+        if (image.getBitmapInternal() != null) {
+            Bitmap fullBitmap = image.getBitmapInternal();
+            android.graphics.Rect rect = face.getBoundingBox();
+            
+            // Boundary checks
+            int left = Math.max(0, rect.left);
+            int top = Math.max(0, rect.top);
+            int width = Math.min(rect.width(), fullBitmap.getWidth() - left);
+            int height = Math.min(rect.height(), fullBitmap.getHeight() - top);
+            
+            if (width <= 0 || height <= 0) return null;
+            
+            try {
+                return Bitmap.createBitmap(fullBitmap, left, top, width, height);
+            } catch (Exception e) {
+                Log.e("LivenessDetector", "Error cropping face: " + e.getMessage());
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Cleanup resources
      */
-    public void release() {
-        // ML Kit detector is managed by singleton, no explicit cleanup needed
+    public void close() {
+        if (detector != null) {
+            detector.close();
+        }
+        if (antiSpoofing != null) {
+            antiSpoofing.close();
+        }
         progressCallback = null;
         guideCallback = null;
         ovalGuideBounds = null;
